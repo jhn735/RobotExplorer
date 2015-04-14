@@ -1,8 +1,8 @@
 /*
 	We define some constants here to make things easier to tweak, if necessary.
 */
-#ifndef ROBO_CFG_H
-#define ROBO_CFG_H
+#ifndef ROBO_CONFIG_H
+#define ROBO_CONFIG_H
 	//robot's size
 	#define ROBOT_LENGTH_METERS 0.44
 	#define ROBOT_WIDTH_METERS 0.38
@@ -17,6 +17,5 @@
 
 	//map's conversion facter of pixels to meters
 	#define MAP_PIXELS_PER_METER 36.995
-
 #endif
 

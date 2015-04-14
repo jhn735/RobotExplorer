@@ -14,6 +14,14 @@ public:
 	Robot();
 	~Robot();
 
+//dimensions of the robot
+	static double length(){ return ROBOT_LENGTH_METERS;};
+	static double width(){ return ROBOT_WIDTH_METERS;};
+	static double height(){ return ROBOT_HEIGHT_METERS;};
+
+//directions robot my move or turn in. 
+	enum direction { FORWARD, BACKWARD, LEFT, RIGHT};
+
 	/* Position modifying functions
 		*Negative number changes direction to opposite of specified.
 		*Returns true if operation was successful
@@ -22,13 +30,5 @@ public:
 	bool turn(double angle, direction d);
 	//directions RIGHT and LEFT may or may not work here.
 	bool move(double distance, direction d);
-
-//dimensions of the robot
-	static const double length = ROBOT_LENGTH_METERS;
-	static const double width = ROBOT_WIDTH_METERS;
-	static const double height = ROBOT_HEIGHT_METERS;
-
-//directions robot my move or turn in. 
-	static enum direction { FORWARD, BACKWARD, LEFT, RIGHT};
 };
 #endif
