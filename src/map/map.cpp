@@ -7,16 +7,22 @@ void Map::load_pixel_map(const char * mapFilename, unsigned char ** pixel_map,
 	lodepng_decode_file(pixel_map, w, h, mapFilename, LCT_GREY, 8);
 }
 
-void Map::load_section_map(char ** pixel_map, Map::Section ** section_map){
+void Map::load_section_map(unsigned char ** pixel_map, Map::Section ** section_map){
 	
 }
 
 Map::Map(const char * mapFilename){
-	load_pixel_map(mapFilename,this->pixel_map, &(this->h), &(this->w) );
-	load_section_map(this->pixel_map, this->section_map);
+	//set all the variables to their initial values
+	region_next_id = new unsigned;
+		*region_next_id = 0;
+
+	// load the pixel map
+	unsigned char ** pixel_map;
+		unsigned pixel_map_height;
+		unsigned pixel_map_width;
+	load_pixel_map(mapFilename, pixel_map, &pixel_map_height, &pixel_map_width);
+	load_section_map(pixel_map, this->section_map);
 }
 
 /* The functions in class Section*/
-Map::section::section(){
-	
-}
+

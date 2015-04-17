@@ -2,29 +2,33 @@
 #include "coordinate.h"
 #include "robot.h"
 #include <cmath>
+#define NULL 0
 
 #ifndef ROBO_MAP_H
 #define ROBO_MAP_H
 
 class Map{
-	static double pixels_per_meter(){ return MAP_PIXELS_PER_METER;};
-	//pixel_map stuff
-	unsigned char ** pixel_map; 
-		unsigned pixel_map_height; unsigned pixel_map_width;
-	static void load_pixel_map(const char * mapFilename, 
-								char ** pixel_map, 
-								unsigned * w, 
-								unsigned * h);
-
-	//the map should consist of sections	
-	Map::Section ** section_map;
-	static void load_section_map(char ** pixel_map, 
-								Map::Section ** section_map);  
-
 public:
 	Map(const char* mapFilename);
 	~Map();
+	
+//something for the sections to point when asked what region they belong to.	
+class Region{
+	bool isExplored;
+	static unsigned * next_id;
+	unsigned id;
+public:
+	Region(){
+		isExplored = false;
+		id = *next_id;
+			(*next_id)++;	
+	};
 
+	~Region();
+	
+	bool explored(){ return isExplored;};
+	void setExplored(){ isExplored = true;};
+};
 
 //Section is a 2D flat piece of the map.
 class Section{
@@ -37,6 +41,7 @@ class Section{
 		isExplorable = false;
 		parent_Region = NULL;
 	};
+	
 	Section(char ** map, coordinate Section_center);
 	~Section();
 	
@@ -45,7 +50,7 @@ class Section{
 	
 	//I call it parent_Region for no real reason
 	//it's the region that the section belongs to.
-	Map::Region * parent_Region;
+	Region * parent_Region;
 
 	//dimensions in both meters and pixels.
 	static double length_meters(){ return ceil(Robot::length()); };
@@ -58,22 +63,24 @@ class Section{
 
 };
 
-class Region{
-	bool isExplored;
-	static unsigned next_id = 0;
-	unsigned id;
-public:
-	Region(){
-		isExplored = false;
-		id = next_id;
-			next_id++;	
-	};
 
-	~Region();
+
+private:
+	static double pixels_per_meter(){ return MAP_PIXELS_PER_METER;};
 	
-	bool explored(){ return isExplored;};
-	void setExplore(){ isExplored = true;};
-};	
+	//pixel_map stuff
+	static void load_pixel_map(const char * mapFilename, 
+								unsigned char ** pixel_map, 
+								unsigned * w, 
+								unsigned * h);
+
+	//the map should consist of sections	
+	Section ** section_map;
+	static void load_section_map(unsigned char ** pixel_map, 
+								Section ** section_map);  
+	//region_next_id
+	static unsigned * region_next_id;
+	
 
 };
 
