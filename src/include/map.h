@@ -2,30 +2,52 @@
 #include "coordinate.h"
 #include "robot.h"
 #include <cmath>
-#define CEIL(X) ((int)(X+1))
+
 #ifndef ROBO_MAP_H
 #define ROBO_MAP_H
 
 class Map{
-private:
-static double pixels_per_meter(){ return MAP_PIXELS_PER_METER;};
-char ** pixel_map;
+	static double pixels_per_meter(){ return MAP_PIXELS_PER_METER;};
+	//pixel_map stuff
+	unsigned char ** pixel_map; 
+		unsigned pixel_map_height; unsigned pixel_map_width;
+	static void load_pixel_map(const char * mapFilename, 
+								char ** pixel_map, 
+								unsigned * w, 
+								unsigned * h);
+
+	//the map should consist of sections	
+	Map::Section ** section_map;
+	static void load_section_map(char ** pixel_map, 
+								Map::Section ** section_map);  
 
 public:
-	Map();
 	Map(const char* mapFilename);
 	~Map();
 
-class section{
+
+//Section is a 2D flat piece of the map.
+class Section{
 	coordinate center;
-	public:
+	bool isExplorable;
+
+	public:	
+	Section(){ 
+		center = coordinate(0,0,0,0);
+		isExplorable = false;
+		parent_Region = NULL;
+	};
+	Section(char ** map, coordinate Section_center);
+	~Section();
 	
-	section();
-	~section();
+	//is the Section explorable? has it been explored?	
+	bool explorable(){return isExplorable;};
 	
-	char ** pixel_map;
-	
-	//dimensions in both meters and pixels. Height may be unnecessary.
+	//I call it parent_Region for no real reason
+	//it's the region that the section belongs to.
+	Map::Region * parent_Region;
+
+	//dimensions in both meters and pixels.
 	static double length_meters(){ return ceil(Robot::length()); };
 	static double length_pixels(){ 
 		return length_meters()*Map::pixels_per_meter();};
@@ -34,15 +56,23 @@ class section{
 	static double width_pixels(){ 
 		return length_meters()*Map::pixels_per_meter();};
 
-	static double height_meters(){ return ceil(Robot::height());};
-	static double height_pixels(){ 
-		return height_meters()*Map::pixels_per_meter();};
 };
 
-class region{
-
+class Region{
+	bool isExplored;
+	static unsigned next_id = 0;
+	unsigned id;
 public:
+	Region(){
+		isExplored = false;
+		id = next_id;
+			next_id++;	
+	};
 
+	~Region();
+	
+	bool explored(){ return isExplored;};
+	void setExplore(){ isExplored = true;};
 };	
 
 };

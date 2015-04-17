@@ -14,7 +14,7 @@ public:
 	Robot();
 	~Robot();
 
-//dimensions of the robot
+//dimensions of the robot in meters
 	static double length(){ return ROBOT_LENGTH_METERS;};
 	static double width(){ return ROBOT_WIDTH_METERS;};
 	static double height(){ return ROBOT_HEIGHT_METERS;};
