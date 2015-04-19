@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cmath>
 #ifndef NULL
-	#define NULL 
+	#define NULL 0
 #endif
 
 #ifndef ROBO_MAP_H
@@ -38,43 +38,41 @@ public:
 //Section is a 2D flat piece of the map.
 class Section{
 	//the corner that has the lowest valued coordinates in the section
-	coordinate _corner;
+	coordinate _corner_meter;
 	bool _explorable;
 	
 	//It's the region that the section belongs to.
 	Region * _region;
 	
 	static double _length_meters;
-	static double _length_pixels;
-	
 	static double _width_meters;
-	static double _width_pixels;
 
 	public:	
 	Section(){ 
-		_corner = coordinate(0,0,0,0);
+		_corner_meter = coordinate(0,0,0,0);
 		_explorable = false;
 		_region = NULL;
 	};
 	
+	//takes in map, width, length and the coordinate the corner pixel resides.
 	Section(unsigned char ** map, unsigned map_w, 
-			unsigned map_l, coordinate section_corner);
-	//~Section();
+			unsigned map_l, coordinate corner_pixel);
 	
-	//is the Section explorable? has it been explored?	
+	//is the Section explorable?	
 	bool explorable(){ return _explorable;};
 
 	//getters and setters for consistency's sake
 	Region * region(){ return _region;};
-	void set_region( Region * new_region){_region = new_region;};
+	//returns false if it failed to set region
+	bool set_region( Region * new_region){
+		if(_region != NULL)	return false;
+		_region = new_region;
+	return true;
+	};
 
 	//dimensions in both meters and pixels.
 	static double length_meters(){ return _length_meters; };
-	static double length_pixels(){ return _length_pixels; };
-
 	static double width_meters(){ return _width_meters; };
-	static double width_pixels(){ return _width_pixels; };
-
 };
 private:
 	static const double pixels_per_meter = MAP_PIXELS_PER_METER;
@@ -85,14 +83,17 @@ private:
 								unsigned * w, 
 								unsigned * l);
 
-	//the map should consist of sections	
-	Section ** section_map;
+	//the map should consist of sections
+	Section ** _section_map;
 		unsigned _section_map_w;
 		unsigned _section_map_l;
 	static void load_section_map(unsigned char * pixel_map_1D,
 								unsigned w, unsigned l, 
 								Section ** section_map,
-								unsigned * section_w, unsigned * section_l);  
+								unsigned * section_w, unsigned * section_l);
+
+	//given the section, make regions and give those sections regions.
+	static void assign_regions(Section ** section_map, unsigned w, unsigned l);
 };
 
 #endif
