@@ -13,7 +13,7 @@ public:
 		x = x_; y = y_; z = z_;
 		theta = theta_;
 	}
-	~coordinate();
+//	~coordinate();
 
 	//the coords
 	double x;	double y;	double z;
