@@ -4,7 +4,8 @@
 #include "config.h"
 #include "coordinate.h"
 #include "robot.h"
-#include <vector>
+	#include <vector>
+	#include <queue>
 
 #ifndef NULL
 	#define NULL 0
@@ -14,7 +15,10 @@ class Map{
 public:
 	Map(const char* mapFilename);
 	void print_section_map();
-	
+
+	//returns true if all regions have been explored
+	bool map_explored();	
+
 	//the class prototypes
 	class Section;
 	
@@ -23,8 +27,9 @@ public:
 		static unsigned next_id;
 	 	unsigned _id;
 		std::vector<Section> _section_list;
+		Section center;
 
-	public:
+		public:
 		Region();
 
 		bool explored(){ return _explored;};

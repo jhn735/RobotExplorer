@@ -1,5 +1,8 @@
 #include "config.h"
 #include "coordinate.h"
+#include "map.h"
+#include "navigator.h"
+
 #include <iostream>
 #include <libplayerc++/playerc++.h>
 #ifndef ROBO_ROBO_H
@@ -17,6 +20,9 @@ class Robot{
 	PlayerClient * client;
 	Position2dProxy * pp;
 	LaserProxy * lp;
+	
+	Navigator * navi;
+	Map * map;
 
 	/* Position modifying functions
 		*Negative number changes direction to opposite of specified.
