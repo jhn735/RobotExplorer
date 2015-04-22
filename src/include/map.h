@@ -1,99 +1,93 @@
+#ifndef ROBO_MAP_H
+#define ROBO_MAP_H
+
 #include "config.h"
 #include "coordinate.h"
 #include "robot.h"
-#include <iostream>
-#include <cmath>
+#include <vector>
+
 #ifndef NULL
 	#define NULL 0
 #endif
 
-#ifndef ROBO_MAP_H
-#define ROBO_MAP_H
-
 class Map{
 public:
 	Map(const char* mapFilename);
-	//~Map();
+	void print_section_map();
 	
-//something for the sections to point when asked what region they belong to.
-class Region{
-	bool _explored;
-	static unsigned next_id;
-	unsigned _id;
-public:
-	Region(){
-		_explored = false;
-		_id = next_id;
-			next_id++;	
-	};
+	//the class prototypes
+	class Section;
+	
+	class Region{
+		bool _explored;
+		static unsigned next_id;
+	 	unsigned _id;
+		std::vector<Section> _section_list;
 
-	//~Region();
-	
-	bool explored(){ return _explored;};
-	void set_explored(){ _explored = true;};
-	
-	unsigned id(){ return _id;};
-};
+	public:
+		Region();
 
-//Section is a 2D flat piece of the map.
-class Section{
-	//the corner that has the lowest valued coordinates in the section
-	coordinate _corner_meter;
-	bool _explorable;
+		bool explored(){ return _explored;};
+		void set_explored(){ _explored = true;};
+		//what does it do? I wonder.
+		void add_section(Section new_section);
 	
-	//It's the region that the section belongs to.
-	Region * _region;
-	
-	static double _length_meters;
-	static double _width_meters;
+		unsigned id(){ return _id;};
+	};//end region
 
-	public:	
-	Section(){ 
-		_corner_meter = coordinate(0,0,0,0);
-		_explorable = false;
-		_region = NULL;
-	};
+	class Section{
+		//the corner that has the lowest valued coordinates in the section
+		coordinate _corner_meter;
+		bool _explorable;
 	
-	//takes in map, width, length and the coordinate the corner pixel resides.
-	Section(unsigned char ** map, unsigned map_w, 
-			unsigned map_l, coordinate corner_pixel);
+		//It's the region that the section belongs to.
+		Region * _region;
 	
-	//is the Section explorable?	
-	bool explorable(){ return _explorable;};
+		static double _length_meters;
+		static double _width_meters;
 
-	//getters and setters for consistency's sake
-	Region * region(){ return _region;};
-	//returns false if it failed to set region
-	bool set_region( Region * new_region){
-		if(_region != NULL)	return false;
-		_region = new_region;
-	return true;
-	};
+		public:	
+		/*Section constructors*/
+		Section();
+		//takes in map, widt&length and the coordinate of the corner pixel.
+		Section(unsigned char ** map, 
+			unsigned map_w, unsigned map_l, 
+			coordinate corner_pixel
+		);
+		//is the Section explorable?	
+		bool explorable(){ return _explorable;};
+		//getters and setters for consistency's sake
+		Region * region(){ return _region;};
+		//returns false if it failed to set region
+		bool set_region( Region * new_region);
+		//dimensions in both meters and pixels.
+		static double length_meters(){ return _length_meters; };
+		static double width_meters(){ return _width_meters; };
+	};//end section
 
-	//dimensions in both meters and pixels.
-	static double length_meters(){ return _length_meters; };
-	static double width_meters(){ return _width_meters; };
-};
 private:
 	static const double pixels_per_meter = MAP_PIXELS_PER_METER;
-	
-	//pixel_map stuff
+		//the map should consist of sections
+	Section ** _section_map;
+		unsigned _section_map_w;
+		unsigned _section_map_l;
+		//the map should keep track the all the regions in the map
+	Region * _region_list;
+		unsigned _region_list_size;	
+		//the load map function they do what their name suggests
+			//load the image from file
 	static void load_pixel_map(const char * mapFilename, 
 								unsigned char * pixel_map, 
 								unsigned * w, 
 								unsigned * l);
-
-	//the map should consist of sections
-	Section ** _section_map;
-		unsigned _section_map_w;
-		unsigned _section_map_l;
+		//given the image, create a map of sections that are (non)explorable
 	static void load_section_map(unsigned char * pixel_map_1D,
 								unsigned w, unsigned l, 
 								Section ** section_map,
 								unsigned * section_w, unsigned * section_l);
-
-	//given the section, make regions and give those sections regions.
-	static void assign_regions(Section ** section_map, unsigned w, unsigned l);
+		//given the section map, make regions and give those sections regions.
+	static void assign_regions(Section ** section_map, unsigned w, unsigned l,
+								Region * region_array, unsigned * num_regions);
 };
 
 #endif

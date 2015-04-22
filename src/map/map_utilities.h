@@ -1,6 +1,8 @@
 #ifndef ROBO_MAP_UTILITIES
 #define ROBO_MAP_UTILITIES
 
+#include <cmath>
+#include <iostream>
 
 //round value to nearest
 double round_to( double nearest, double value){

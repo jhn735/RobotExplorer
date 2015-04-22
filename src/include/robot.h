@@ -4,14 +4,17 @@
 #define ROBO_ROBO_H
 class Robot{
 private:
-	coordinate position = coordinate(
-		ROBOT_STARTPOS_X,
-		ROBOT_STARTPOS_Y,
-		ROBOT_STARTPOS_Z,
-		ROBOT_STARTPOS_THETA );
+	coordinate position;
 
 public:
-	Robot();
+	Robot(){
+		position = coordinate(
+			ROBOT_STARTPOS_X,
+			ROBOT_STARTPOS_Y,
+			ROBOT_STARTPOS_Z,
+			ROBOT_STARTPOS_THETA );
+		
+	};
 	~Robot();
 
 //dimensions of the robot in meters
