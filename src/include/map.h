@@ -14,9 +14,14 @@
 class Map{
 public:
 	Map(const char* mapFilename);
+	coordinate generate_random_coord();
+	
+
 	void print_section_map();
+	void print_region_map();
 
 	//returns true if all regions have been explored
+		//for now should only return false
 	bool map_explored();	
 
 	//the class prototypes
@@ -70,7 +75,7 @@ public:
 		static double width_meters(){ return _width_meters; };
 	};//end section
 
-private:
+private://map's private stash
 	static const double pixels_per_meter = MAP_PIXELS_PER_METER;
 		//the map should consist of sections
 	Section ** _section_map;

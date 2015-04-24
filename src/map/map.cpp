@@ -86,14 +86,6 @@ Map::Map(const char * mapFilename){
 					_region_list, &_region_list_size);
 };
 
-void Map::print_section_map(){
-	//for each section in section map
-	for(int i = 0; i < _section_map_l; i++){
-		for(int j = 0; j < _section_map_w; j++)
-			std::cout << _section_map[i][j].explorable();
-	std::cout << std::endl; 
-	}
-};
 
 //this is really just a wrapper function for the lodepng
 	//I should probably kill it.
@@ -150,5 +142,35 @@ void Map::assign_regions(
 ){
 		
 
+};
+
+//returns a random coordinate whose section is unexplored.
+coordinate generate_random_coord(){
+
+return coordinate(0,0,0,0);
+};
+
+//prints out a map of traversible and non/ sections
+void Map::print_section_map(){
+	//for each section in section map
+	for(int i = 0; i < _section_map_l; i++){
+		for(int j = 0; j < _section_map_w; j++)
+			std::cout << _section_map[i][j].explorable();
+		std::cout << std::endl; 
+	}
+};
+
+//prints out a map of sections designated by their region's id
+void Map::print_region_map(){
+	for(int i = 0; i < _section_map_l; i++){
+		for(int j = 0; j < _section_map_w; j++)
+			std::cout << (_section_map[i][j].region())->id();
+		std::cout << std::endl;
+	}
+};
+
+bool Map::map_explored(){
+	//for now only return false;
+return false;
 };
 /***********************End Map*****************/
