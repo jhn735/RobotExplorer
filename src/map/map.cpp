@@ -64,6 +64,18 @@ bool Map::Section::set_region( Region * new_region){
 return true;	
 };
 
+bool Map::Section::contains_coord(coordinate coord){
+	double range_x_lower = _corner_meter.x; 
+	double range_x_higher = range_x_lower + width_meters();
+	if(coord.x < range_x_lower || coord.x > range_x_higher)
+		return false;
+
+	double range_y_lower = _corner_meter.y;
+	double range_y_higher = range_y_lower + length_meters();
+	if(coord.y < range_y_lower || coord.y > range_y_higher)
+		return false;
+return true;
+};
 #define NEAREST 0.5
 double Map::Section::_length_meters = ceil_to(NEAREST, Robot::length());
 double Map::Section::_width_meters = ceil_to(NEAREST, Robot::width());
@@ -150,6 +162,12 @@ coordinate generate_random_coord(){
 return coordinate(0,0,0,0);
 };
 
+double Map::generate_random_coord(){
+
+};
+
+
+
 //prints out a map of traversible and non/ sections
 void Map::print_section_map(){
 	//for each section in section map
@@ -173,4 +191,5 @@ bool Map::map_explored(){
 	//for now only return false;
 return false;
 };
+
 /***********************End Map*****************/

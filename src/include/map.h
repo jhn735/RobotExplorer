@@ -14,8 +14,9 @@
 class Map{
 public:
 	Map(const char* mapFilename);
+	double distance(coordinate coord1, coordinate coord2);
 	coordinate generate_random_coord();
-	
+	bool accessible(coordinate coord);	
 
 	void print_section_map();
 	void print_region_map();
@@ -70,6 +71,8 @@ public:
 		Region * region(){ return _region;};
 		//returns false if it failed to set region
 		bool set_region( Region * new_region);
+		//returns true if the coordinate falls within the section
+		bool contains_coord(coordinate coord);
 		//dimensions in both meters and pixels.
 		static double length_meters(){ return _length_meters; };
 		static double width_meters(){ return _width_meters; };

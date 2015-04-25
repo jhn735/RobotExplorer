@@ -2,12 +2,13 @@
 #define ROBO_NAVIGATOR_H
 #include "map.h"
 #include "coordinate.h"
-#include <queue>
+#include <vector>
+#include <stack>
 
 class Navigator{
 	//the queue of waypoints that the robot follows
 		//to meet its goals
-	queue<coordinate> waypoints;
+	stack<coordinate> waypoints;
 	coordinate robot_location;
 	Map * _map;
 	
@@ -17,10 +18,18 @@ class Navigator{
 		void plan_path_to_goal(coordinate goal);
 
 public:
-	Navigator(Map * map);
+	Navigator(Map * map, coordinate root);
 
 	//get the waypoint at the top of the queue given the current location
 	coordinate next_waypoint(coordinate location);
+
+//the tree stuff
+	typedef struct NODE{
+		coordinate coord;
+		node * parent;
+	} node;
+	
+	std::vector<node> tree;
 
 };
 
