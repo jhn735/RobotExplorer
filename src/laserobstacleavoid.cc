@@ -41,8 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define RAYS 32
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   parse_args(argc,argv);
 

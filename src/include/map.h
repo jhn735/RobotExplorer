@@ -3,7 +3,6 @@
 
 #include "config.h"
 #include "coordinate.h"
-	#include <vector>
 
 #ifndef NULL
 	#define NULL 0

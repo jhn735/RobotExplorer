@@ -1,5 +1,5 @@
 #include "map.h"
-#include "map_utilities.h"
+#include "map_utils.h"
 #include <iostream>
 using namespace std;
 int main(){

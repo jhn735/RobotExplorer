@@ -45,6 +45,8 @@ starting with the destination, only reversing the stack. Inefficient but simple.
 
 -Map contains regions of various sizes that in turn contain sections and are 
 decided to be either explorable or not explorable.
+  
+-Each Region should contain at least one section.
 
 To be continued...
 ==================
