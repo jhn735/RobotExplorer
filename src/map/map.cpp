@@ -109,6 +109,9 @@ Map::Map(const char * mapFilename){
 		unsigned length = 0;
 
 	load_pixel_map(mapFilename, pixel_map, width, length);
+	//set the map's length and width in meters
+		_map_length_meters = (double)(length*pixels_per_meter);
+		_map_width_meters = (double)(width*pixels_per_meter);
 	load_section_map(pixel_map, length, width, 
 					_section_map, _section_map_w, _section_map_l);
 	assign_regions(_section_map, _section_map_w, _section_map_l, 
@@ -171,6 +174,7 @@ dealloc_2D_array(pixel_map_2D, pixel_w, pixel_l);
 };
 
 //on the to do list obviously
+	//Regions may not even be necessary
 void Map::assign_regions(
 	Section ** section_map, unsigned w, unsigned l,
 	Region * region_array, unsigned * num_regions
@@ -181,8 +185,17 @@ void Map::assign_regions(
 
 //returns a random coordinate whose section is unexplored.
 coordinate Map::generate_random_coord(){
+	//assuming that the origin lies in the center of the map
+	//generate a random number between the max and min of the map for x
+		double half_x = _map_width_meters/2;
+	double x = rand_between(-half_x, half_x);
 
-return coordinate(0,0,0,0);
+	//do the same for y
+		double half_y = _map_length_meters/2;
+	double y = rand_between(-half_y, half_y);
+	//z and theta are zero 
+//return the new coordinate
+return coordinate(x, y,0,0);
 };
 
 //prints out a map of traversible and non-traversible sections
@@ -207,7 +220,7 @@ void Map::print_region_map(){
 };
 
 bool Map::map_explored(){
-	//for now only it only returns false;
+//for now only it only returns false;
 	//for each region A in the region list
 		//if that region is unexplored return false
 //if all else fails the map has been explored
