@@ -20,4 +20,15 @@ double coordinate::distance(coordinate coordA, coordinate coordB){
 	double Y = std::pow( (coordA.y - coordB.y), 2);
 	double Z = std::pow( (coordA.z - coordB.z), 2);
 return std::sqrt(X + Y + Z);
-}
+};
+
+bool coordinate::operator==(const coordinate &other){
+	bool retVal = true;
+		retVal = retVal && (this->x == other.x);
+		retVal = retVal && (this->y == other.y);
+		retVal = retVal && (this->z == other.z);
+		retVal = retVal && (this->theta == other.theta); 
+return retVal;
+};
+
+bool coordinate::operator!=(const coordinate &other){return !(*this == other);};

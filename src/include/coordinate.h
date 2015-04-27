@@ -8,7 +8,8 @@ public:
 	coordinate();
 	coordinate(double x_, double y_, double z_, double theta_);
 	static double distance(coordinate coordA, coordinate coordB);
-
+	bool operator==(const coordinate &other);
+	bool operator!=(const coordinate &other);
 	//the coords
 	double x;	double y;	double z;
 	double theta;

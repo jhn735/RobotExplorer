@@ -17,20 +17,19 @@ class Navigator{
 	coordinate next_goal();
 		void plan_path_to_goal(coordinate goal);
 
+//the tree stuff
+	typedef struct node{
+		coordinate coord;
+		node * parent;
+	} node;	
+	std::vector<node> tree;
+	void add_node(coordinate coord, node * parent);
+	bool in_tree(coordinate coord);
+
 public:
 	Navigator(Map * map, coordinate root);
 
 	//get the waypoint at the top of the queue given the current location
 	coordinate next_waypoint(coordinate location);
-
-//the tree stuff
-	typedef struct node{
-		coordinate coord;
-		node * parent;
-	} node;
-	
-	std::vector<node> tree;
-
 };
-
 #endif

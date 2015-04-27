@@ -1,7 +1,10 @@
 #include "navigator.h"
 #include "coordinate.h"
-#include <vector>
 #include "map.h"
+	#include <vector>
+	#include <stack>
+
+using namespace std;
 Navigator::Navigator(Map * map, coordinate root){
 	//set the map
 	_map = map;
@@ -10,14 +13,14 @@ Navigator::Navigator(Map * map, coordinate root){
 	node root_node;
 		root_node.coord = root;
 		root_node.parent = NULL;	
-	tree.push_back(root_node):
+	tree.push_back(root_node);
 };
 
 //get the waypoint at the top of the queue given the current location
 coordinate Navigator::next_waypoint(coordinate current_location){
 	//if the waypoint has been reached remove from queue
 		//otherwise the robot was blocked
-	if(robot_location == waypoints.front()) waypoints.pop();
+	if(robot_location == waypoints.top()) waypoints.pop();
 
 	//set the robot_location to be location.
 	robot_location = current_location;
@@ -31,7 +34,7 @@ coordinate Navigator::next_waypoint(coordinate current_location){
 	}
 	
 	//get and remove the next element in the waypoint queue
-	coordinate retVal = waypoints.front();
+	coordinate retVal = waypoints.top();
 return retVal;
 };
 
@@ -40,10 +43,10 @@ coordinate Navigator::next_goal(){
 	//if the map has been explored then the robot is done.
 	if(_map->map_explored()) return robot_location;	
 
-	//generate a new goal if the old one is inaccessible	
-	do{ 
-	coordinate goal = _map->generate_random_coord();
-	}while( !(_map->accessible(goal)) )	
+	//generate a new goal if the old one is inaccessible
+	coordinate goal;	
+	do{ goal = _map->generate_random_coord();
+	}while( !(_map->accessible(goal)) );	
 
 return goal;
 };
@@ -70,4 +73,22 @@ void Navigator::plan_path_to_goal(coordinate goal){
 		//pop the front of the sub_stack
 
 
+};
+
+//create a new node and add it to the tree
+void Navigator::add_node(coordinate coord, node * parent){
+	node n;
+		n.coord = coord;
+		n.parent = parent;
+	tree.push_back(n);
+};
+
+//checks to see if the coordinate is in the tree
+bool Navigator::in_tree(coordinate coord){
+	//for each element in tree 
+		//if the coordinate matches return true
+	for(int i = 0; i < tree.size(); i++)
+		if(tree[i].coord == coord) return true;
+//all else fails return false
+return false;
 };
