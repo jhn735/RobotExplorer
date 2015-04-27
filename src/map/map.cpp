@@ -6,33 +6,11 @@
 #include <vector>
 #include <cmath>
 
-/************Region Start*****************/
-//something for the sections to point when asked what region they belong to.
-	//a region should be something that is 
-Map::Region::Region(){
-	_explored = false;
-	_id = next_id;
-		next_id++;
-};
-
-	//what does it do? I wonder.
-void Map::Region::add_section(Section * new_section){
-	//if the region has the section already
-		//then return and do nothing.
-	for(int i = 0; i < _section_list.size(); i++)
-		if(new_section == _section_list[i])
-			return;
-//otherwise add the section to the list
-_section_list.push_back(new_section);	
-};
-	
-unsigned Map::Region::next_id = 0;
-/*****************Region END*************************/
 /***************Section START*********************/
 Map::Section::Section(){
 	_corner_meter = coordinate(0,0,0,0);
 	_explorable = false;
-	_region = NULL;
+	_explored = false;
 };
 
 	//takes in map, width, length and the coordinate the corner pixel resides.
@@ -42,7 +20,6 @@ Map::Section::Section(
 	coordinate corner_pixel
 
 ){
-	_region = NULL;
 	//translate the coordinate from pixels to meters
 		double x_meters = corner_pixel.x * pixels_per_meter;
 		double y_meters = corner_pixel.y * pixels_per_meter;
@@ -71,13 +48,15 @@ Map::Section::Section(
 	//if all goes well the section is explorable
 	_explorable = true;
 };
-	
-	//returns false if it failed to set region
-bool Map::Section::set_region( Region * new_region){
-	if(_region != NULL) return false;
-	_region = new_region;	
-return true;	
-};
+
+bool Map::Section::explorable(){ return _explorable;};
+
+bool Map::Section::explored(){
+	if(!_explorable) return true;
+return _explored;
+};	
+
+void Map::Section::set_explored(){ _explored = true;};
 
 bool Map::Section::contains_coord(coordinate coord){
 	double range_x_lower = _corner_meter.x; 
@@ -91,11 +70,14 @@ bool Map::Section::contains_coord(coordinate coord){
 		return false;
 return true;
 };
+
 //it is best to tune NEAREST to produce the smallest map but also so that
 	//it doesn't produce extreme false positives 0.5 and 1 seem to work
 #define NEAREST 1
 double Map::Section::_length_meters = ceil_to(NEAREST, Robot::length());
+	double Map::Section::width_meters(){ return _width_meters;};
 double Map::Section::_width_meters = ceil_to(NEAREST, Robot::width());
+	double Map::Section::length_meters(){ return _length_meters;};
 /******************Section END***************/
 
 /****************Start Map********************/
@@ -114,8 +96,6 @@ Map::Map(const char * mapFilename){
 		_map_width_meters = (double)(width*pixels_per_meter);
 	load_section_map(pixel_map, length, width, 
 					_section_map, _section_map_w, _section_map_l);
-	assign_regions(_section_map, _section_map_w, _section_map_l, 
-					_region_list, &_region_list_size);
 };
 
 
@@ -173,16 +153,6 @@ void Map::load_section_map(
 dealloc_2D_array(pixel_map_2D, pixel_w, pixel_l);
 };
 
-//on the to do list obviously
-	//Regions may not even be necessary
-void Map::assign_regions(
-	Section ** section_map, unsigned w, unsigned l,
-	Region * region_array, unsigned * num_regions
-){
-		
-
-};
-
 //returns a random coordinate whose section is unexplored.
 coordinate Map::generate_random_coord(){
 	//assuming that the origin lies in the center of the map
@@ -210,13 +180,23 @@ void Map::print_section_map(){
 	}
 };
 
-//prints out a map of sections designated by their region's id
-void Map::print_region_map(){
-	for(int i = 0; i < _section_map_l; i++){
-		for(int j = 0; j < _section_map_w; j++)
-			std::cout << (_section_map[i][j].region())->id();
-		std::cout << std::endl;
-	}
+bool accessible(coordinate coord){
+	//get a ball park estimate of which sections the cord may be in.
+		int est_i =(int) (coord.x/Section::width_meters());
+		int est_j =(int) (coord.y/Section::length_meters());
+			int range = 1;
+
+	//for each section in the range
+		//if the section contains the coordinate and it is explorable
+			//return true		
+	for(int i = est_i - range; i < est_i+range; i++)
+		for(int j = est_j - range; j < est_j+range; i++){
+			Section s = _section_map[i][j];
+			if(s.contains_coord(coord) && s.explorable()) return true;
+		}
+
+//if all else fails then return false
+return false
 };
 
 bool Map::map_explored(){
@@ -226,5 +206,4 @@ bool Map::map_explored(){
 //if all else fails the map has been explored
 return false;
 };
-
 /***********************End Map*****************/

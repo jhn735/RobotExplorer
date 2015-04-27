@@ -12,44 +12,20 @@
 class Map{
 public:
 	Map(const char* mapFilename);
-	double distance(coordinate coord1, coordinate coord2);
 	coordinate generate_random_coord();
-	bool accessible(coordinate coord);	
 
 	void print_section_map();
-	void print_region_map();
+	bool accessible(coordinate coord);	
 
 	//returns true if all regions have been explored
 		//for now should only return false
 	bool map_explored();	
 
-	//the class prototypes
-	class Section;
-	
-	class Region{
-		bool _explored;
-		static unsigned next_id;
-	 	unsigned _id;
-		std::vector<Section *> _section_list;
-
-		public:
-		Region();
-
-		bool explored(){ return _explored;};
-		void set_explored(){ _explored = true;};
-		//what does it do? I wonder.
-		void add_section(Section * new_section);
-	
-		unsigned id(){ return _id;};
-	};//end region
-
 	class Section{
 		//the corner that has the lowest valued coordinates in the section
 		coordinate _corner_meter;
 		bool _explorable;
-	
-		//It's the region that the section belongs to.
-		Region * _region;
+		bool _explored;	
 	
 		static double _length_meters;
 		static double _width_meters;
@@ -63,16 +39,15 @@ public:
 			coordinate corner_pixel
 		);
 		//is the Section explorable?	
-		bool explorable(){ return _explorable;};
-		//getters and setters for consistency's sake
-		Region * region(){ return _region;};
-		//returns false if it failed to set region
-		bool set_region( Region * new_region);
+		bool explorable();
+
+		bool explored();
+		void set_explored();
 		//returns true if the coordinate falls within the section
 		bool contains_coord(coordinate coord);
 		//dimensions in both meters and pixels.
-		static double length_meters(){ return _length_meters; };
-		static double width_meters(){ return _width_meters; };
+		static double length_meters();
+		static double width_meters();
 	};//end section
 
 private://map's private stash
@@ -84,9 +59,6 @@ private://map's private stash
 	Section ** _section_map;
 		unsigned _section_map_w;
 		unsigned _section_map_l;
-		//the map should keep track the all the regions in the map
-	Region * _region_list;
-		unsigned _region_list_size;	
 		//the load map function they do what their name suggests
 			//load the image from file
 	static void load_pixel_map(const char * mapFilename, 
@@ -98,9 +70,6 @@ private://map's private stash
 								unsigned w, unsigned l, 
 								Section ** &section_map,
 								unsigned &section_w, unsigned &section_l);
-		//given the section map, make regions and give those sections regions.
-	static void assign_regions(Section ** section_map, unsigned w, unsigned l,
-								Region * region_array, unsigned * num_regions);
 };
 
 #endif
