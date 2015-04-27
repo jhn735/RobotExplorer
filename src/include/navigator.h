@@ -8,7 +8,7 @@
 class Navigator{
 	//the queue of waypoints that the robot follows
 		//to meet its goals
-	stack<coordinate> waypoints;
+	std::stack<coordinate> waypoints;
 	coordinate robot_location;
 	Map * _map;
 	
@@ -24,7 +24,7 @@ public:
 	coordinate next_waypoint(coordinate location);
 
 //the tree stuff
-	typedef struct NODE{
+	typedef struct node{
 		coordinate coord;
 		node * parent;
 	} node;

@@ -3,9 +3,7 @@
 
 #include "config.h"
 #include "coordinate.h"
-#include "robot.h"
 	#include <vector>
-	#include <queue>
 
 #ifndef NULL
 	#define NULL 0
@@ -32,8 +30,7 @@ public:
 		bool _explored;
 		static unsigned next_id;
 	 	unsigned _id;
-		std::vector<Section> _section_list;
-		Section center;
+		std::vector<Section *> _section_list;
 
 		public:
 		Region();
@@ -41,7 +38,7 @@ public:
 		bool explored(){ return _explored;};
 		void set_explored(){ _explored = true;};
 		//what does it do? I wonder.
-		void add_section(Section new_section);
+		void add_section(Section * new_section);
 	
 		unsigned id(){ return _id;};
 	};//end region
@@ -90,14 +87,14 @@ private://map's private stash
 		//the load map function they do what their name suggests
 			//load the image from file
 	static void load_pixel_map(const char * mapFilename, 
-								unsigned char * pixel_map, 
-								unsigned * w, 
-								unsigned * l);
+								unsigned char * &pixel_map, 
+								unsigned &w, 
+								unsigned &l);
 		//given the image, create a map of sections that are (non)explorable
 	static void load_section_map(unsigned char * pixel_map_1D,
 								unsigned w, unsigned l, 
-								Section ** section_map,
-								unsigned * section_w, unsigned * section_l);
+								Section ** &section_map,
+								unsigned &section_w, unsigned &section_l);
 		//given the section map, make regions and give those sections regions.
 	static void assign_regions(Section ** section_map, unsigned w, unsigned l,
 								Region * region_array, unsigned * num_regions);

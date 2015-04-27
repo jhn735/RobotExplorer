@@ -1,12 +1,13 @@
+#ifndef ROBO_ROBO_H
+#define ROBO_ROBO_H
+
 #include "config.h"
 #include "coordinate.h"
 #include "map.h"
 #include "navigator.h"
 
-#include <iostream>
-#include <libplayerc++/playerc++.h>
-#ifndef ROBO_ROBO_H
-#define ROBO_ROBO_H
+	#include <iostream>
+//#include <libplayerc++/playerc++.h>
 
 
 class Robot{
@@ -17,10 +18,10 @@ class Robot{
 	//the server client stuff for player.
 		//for information on how these work go to:
 		//http://playerstage.sourceforge.net/doc/Player-cvs/player
-	PlayerClient * client;
+	/*PlayerClient * client;
 	Position2dProxy * pp;
 	LaserProxy * lp;
-	
+	*/
 	Navigator * navi;
 	Map * map;
 

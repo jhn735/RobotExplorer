@@ -35,7 +35,11 @@ unsigned char ** alloc_2D_array(unsigned char * arr, unsigned w, unsigned h){
 		//create a new row
 		retVal[i] = new unsigned char[w];
 		for(int j = 0; j < w; j++){
-			retVal[i][j] = arr[arr_index];
+/*			std::cout << "i:" << i
+					  << " j:" << j
+					  << " arr_index:" << arr_index
+					  << std::endl;
+*/			retVal[i][j] = arr[arr_index];
 			arr_index++;
 		}
 	}
@@ -51,6 +55,17 @@ void disp(unsigned char ** a, unsigned w, unsigned h){
 		std::cout << std::endl;
 	}
 }
+
+void disp(unsigned char * a, unsigned w, unsigned h){
+	int arr_index = 0;
+	for(unsigned i = 0; i < h; i++){
+		for(unsigned j = 0; j < w; j++){
+			std::cout << (unsigned)(a[arr_index]) << ' ';
+			arr_index++;
+		}
+		std::cout << "endl" << std::endl << std::endl;
+	}
+}	
 
 void dealloc_2D_array(unsigned char ** arr, unsigned w, unsigned h){
 	for(int i = 0; i < h; i++){
