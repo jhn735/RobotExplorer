@@ -44,9 +44,13 @@ coordinate Navigator::next_goal(){
 	if(_map->map_explored()) return robot_location;	
 
 	//generate a new goal if the old one is inaccessible
-	coordinate goal;	
-	do{ goal = _map->generate_random_coord();
-	}while( !(_map->accessible(goal)) );	
+	coordinate goal; bool cond;	
+	do{ 
+		goal = _map->generate_random_coord();
+		// construct the 
+		cond = !(_map->accessible(goal));
+			cond = cond && !(in_tree(goal));
+	}while(cond);	
 
 return goal;
 };
@@ -83,6 +87,7 @@ void Navigator::add_node(coordinate coord, node * parent){
 	tree.push_back(n);
 };
 
+
 //checks to see if the coordinate is in the tree
 bool Navigator::in_tree(coordinate coord){
 	//for each element in tree 
@@ -91,4 +96,16 @@ bool Navigator::in_tree(coordinate coord){
 		if(tree[i].coord == coord) return true;
 //all else fails return false
 return false;
+};
+
+int Navigator::get_index(coordinate coord){
+	//for each element in tree
+		//if the coordinate matches return the index
+	for(int i = 0; i < tree.size(); i++)
+		if(tree[i].coord == coord) return i;
+};
+
+void Navigator::print_tree(){
+	//for each element in the tree
+		//print the coordinate and the index of it's parent
 };

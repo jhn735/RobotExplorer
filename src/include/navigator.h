@@ -26,8 +26,11 @@ class Navigator{
 	void add_node(coordinate coord, node * parent);
 	bool in_tree(coordinate coord);
 
+	int get_index(coordinate coord);	
 public:
 	Navigator(Map * map, coordinate root);
+	
+	void print_tree();
 
 	//get the waypoint at the top of the queue given the current location
 	coordinate next_waypoint(coordinate location);
