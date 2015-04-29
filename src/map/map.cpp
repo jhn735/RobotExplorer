@@ -23,10 +23,13 @@ Map::Section::Section(
 
 ){
 	//translate the coordinate from pixels to meters
-		double x_meters = corner_pixel.x * pixels_per_meter;
-		double y_meters = corner_pixel.y * pixels_per_meter;
+		double x_meters = corner_pixel.x / pixels_per_meter;
+		double y_meters = corner_pixel.y / pixels_per_meter;
 	_corner_meter = coordinate(x_meters, y_meters, 0, 0);
 
+		y_meters += _length_meters/2;
+		x_meters += _width_meters/2;
+	_center_meter = coordinate(x_meters, y_meters, 0, 0);
 	//find the length/width of the section in pixels
 	double length_pixels = ceil(_length_meters*pixels_per_meter);
 	double width_pixels = ceil(_width_meters*pixels_per_meter);
@@ -63,12 +66,12 @@ void Map::Section::set_explored(){ _explored = true;};
 bool Map::Section::contains_coord(coordinate coord){
 	double range_x_lower = _corner_meter.x; 
 	double range_x_higher = range_x_lower + width_meters();
-	if(coord.x < range_x_lower || coord.x > range_x_higher)
+	if(coord.x <= range_x_lower || coord.x > range_x_higher)
 		return false;
 
 	double range_y_lower = _corner_meter.y;
 	double range_y_higher = range_y_lower + length_meters();
-	if(coord.y < range_y_lower || coord.y > range_y_higher)
+	if(coord.y <= range_y_lower || coord.y > range_y_higher)
 		return false;
 return true;
 };
@@ -94,8 +97,8 @@ Map::Map(const char * mapFilename){
 
 	load_pixel_map(mapFilename, pixel_map, width, length);
 	//set the map's length and width in meters
-		_map_length_meters = (double)(length*pixels_per_meter);
-		_map_width_meters = (double)(width*pixels_per_meter);
+		_map_length_meters = (double)(length/pixels_per_meter);
+		_map_width_meters = (double)(width/pixels_per_meter);
 	load_section_map(pixel_map, length, width, 
 					_section_map, _section_map_w, _section_map_l);
 };
@@ -157,17 +160,21 @@ dealloc_2D_array(pixel_map_2D, pixel_w, pixel_l);
 
 //returns a random coordinate whose section is unexplored.
 coordinate Map::generate_random_coord(){
-	//assuming that the origin lies in the center of the map
-	//generate a random number between the max and min of the map for x
-		double half_x = _map_width_meters/2;
-	double x = rand_between(-half_x, half_x);
+	if(map_explored()) return coordinate(0,0,0,0);
 
-	//do the same for y
-		double half_y = _map_length_meters/2;
-	double y = rand_between(-half_y, half_y);
-	//z and theta are zero 
-//return the new coordinate
-return coordinate(x, y,0,0);
+	//generate a random number between 1 and 100 
+	double rand = rand_between(1, 100, 0);	
+	//if the section is explorable() and isn't explored
+		//if rand is <= 0 return the center coordinate
+	while(true){
+	  for(int i = 0; i < _section_map_l; i++)
+		for(int j = 0; j < _section_map_l; j++){
+			Section s = _section_map[i][j];
+			if(s.explorable() && !s.explored())
+				if(rand > 0) rand--;
+				else return s._center_meter;	
+		}//end for(int j...	
+	};//end while
 };
 
 //prints out a map of traversible and non-traversible sections
@@ -182,31 +189,56 @@ void Map::print_section_map(){
 	}
 };
 
-bool Map::accessible(coordinate coord){
+Map::Section * Map::get_containing_section(coordinate coord){
 	//get a ball park estimate of which sections the cord may be in.
 	int est_i =(int) (coord.x/Section::width_meters());
 	int est_j =(int) (coord.y/Section::length_meters());
-	int range = 1;
+	int range = 2;
+
+	int i_lower = (est_i-range>0)?(est_i-range):0;
+	int i_upper = (est_i+range<_section_map_l)?(est_i+range):_section_map_l-1;
+
+	int j_lower = (est_j-range>0)?(est_j-range):0;
+	int j_upper = (est_j+range<_section_map_w)?(est_j+range):_section_map_w-1;
 
 	//for each section in the range
 		//if the section contains the coordinate and it is explorable
 			//return true		
-	for(int i = est_i - range; i < est_i+range; i++)
-		for(int j = est_j - range; j < est_j+range; i++){
+	for(int i = i_lower; i <= i_upper; i++){
+		for(int j = j_lower; j <= j_upper; j++){
 			Section s = _section_map[i][j];
-			if(s.contains_coord(coord) && s.explorable()) return true;
+			if(s.contains_coord(coord)) return &_section_map[i][j];
+		}}
+	//if it hasn't been found search through all of them
+	for(int i = 0; i < _section_map_l; i++)
+		for(int j = 0; j < _section_map_w; j++){
+			Section s = _section_map[i][j];
+			if(s.contains_coord(coord)) return &_section_map[i][j]; 
 		}
+//if all else fails return null
+return NULL;	
+};
 
-//if all else fails then return false
-return false;
+bool Map::accessible(coordinate coord){
+	Section * s = get_containing_section(coord);
+	if(s == NULL) return false;
+return s->explorable();
+};
+
+void Map::mark_explored(coordinate coord){
+	Section * s = get_containing_section(coord);
+	if(s == NULL) return;
+	s->set_explored();
 };
 
 bool Map::map_explored(){
-//for now only it only returns false;
-	//for each region A in the region list
-		//if that region is unexplored return false
+	//for each section in section map
+		//if the section has not been explored return false
+	for(int i = 0; i < _section_map_l; i++)
+		for(int j = 0; j < _section_map_w; j++)
+			if(!_section_map[i][j].explored()) return false;	
 //if all else fails the map has been explored
-return false;
+return true;
 };
 /***********************End Map*****************/
 

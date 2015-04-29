@@ -1,6 +1,6 @@
 #include "coordinate.h"
 #include <cmath> 
-
+#include <iostream>
 /*
 	Having something that stores coordinates together is much convenient wow.
 */
@@ -20,6 +20,22 @@ double coordinate::distance(coordinate coordA, coordinate coordB){
 	double Y = std::pow( (coordA.y - coordB.y), 2);
 	double Z = std::pow( (coordA.z - coordB.z), 2);
 return std::sqrt(X + Y + Z);
+};
+
+double coordinate::angle_towards(coordinate src, coordinate dest){
+	//pretend that src is the origin of it's own plane
+	//get the difference, this is the same as setting the origin to src
+	coordinate diff = dest - src;
+	//get the angle between the src and destination
+return atan(diff.y/diff.x);
+};
+
+void coordinate::print(){
+	std::cout << "x:" << x
+			  << " y:"<< y 
+			  << " z:"<< z 
+			  << " theta:" << theta 
+			  << std::endl;
 };
 
 coordinate coordinate::operator-(const coordinate &other){

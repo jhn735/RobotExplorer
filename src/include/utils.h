@@ -8,7 +8,7 @@ double round_to( double nearest, double value);
 	//does the same thing as round_to only skips the dec check
 double ceil_to( double nearest, double value);
 
-double rand_between(double lower, double upper);
+double rand_between(double lower, double upper, int seed);
 
 //allocate a 2D array given the 1D array, width, and height
 unsigned char ** alloc_2D_array(unsigned char * arr, unsigned w, unsigned h);

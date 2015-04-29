@@ -2,8 +2,8 @@
 #define ROBO_NAVIGATOR_H
 #include "map.h"
 #include "coordinate.h"
-#include <vector>
-#include <stack>
+	#include <vector>
+	#include <stack>
 
 class Navigator{
 	//the queue of waypoints that the robot follows
@@ -21,17 +21,16 @@ class Navigator{
 	typedef struct node{
 		coordinate coord;
 		node * parent;
+		unsigned parent_index;
 	} node;	
 	std::vector<node> tree;
 	void add_node(coordinate coord, node * parent);
 	bool in_tree(coordinate coord);
 
-	int get_index(coordinate coord);	
 public:
 	Navigator(Map * map, coordinate root);
 	
 	void print_tree();
-
 	//get the waypoint at the top of the queue given the current location
 	coordinate next_waypoint(coordinate location);
 };

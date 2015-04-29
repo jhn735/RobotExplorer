@@ -26,9 +26,9 @@ double ceil_to( double nearest, double value){
 return units*nearest;
 };
 
-double rand_between(double lower, double upper){
+double rand_between(double lower, double upper, int seed){
 	int range = upper - lower;
-	srand(time(NULL));
+	srand(time(NULL)+seed);
 	int randNum = (rand()%(int)range)+(int)lower;
 return (double)randNum; 
 };

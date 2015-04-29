@@ -15,7 +15,7 @@ public:
 
 	void print_section_map();
 	bool accessible(coordinate coord);	
-
+	void mark_explored(coordinate coord);
 	//returns true if all regions have been explored
 		//for now should only return false
 	bool map_explored();	
@@ -30,6 +30,7 @@ public:
 		static double _width_meters;
 
 		public:	
+		coordinate _center_meter;
 		/*Section constructors*/
 		Section();
 		//takes in map, widt&length and the coordinate of the corner pixel.
@@ -49,7 +50,7 @@ public:
 		static double width_meters();
 	};//end section
 
-private://map's private stash
+//private://map's private stash
 	static const double pixels_per_meter = MAP_PIXELS_PER_METER;
 	
 	double _map_length_meters;
@@ -58,6 +59,7 @@ private://map's private stash
 	Section ** _section_map;
 		unsigned _section_map_w;
 		unsigned _section_map_l;
+	Section * get_containing_section(coordinate coord);
 		//the load map function they do what their name suggests
 			//load the image from file
 	static void load_pixel_map(const char * mapFilename, 
