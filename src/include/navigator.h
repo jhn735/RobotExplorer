@@ -26,6 +26,8 @@ class Navigator{
 	std::vector<node> tree;
 	void add_node(coordinate coord, node * parent);
 	bool in_tree(coordinate coord);
+	node closest_in_tree(coordinate goal);
+	
 
 public:
 	Navigator(Map * map, coordinate root);
