@@ -16,7 +16,7 @@ coordinate::coordinate(double x_, double y_, double z_, double theta_){
 
 //discounts theta, returns the length of the line between the two coords
 double coordinate::distance(coordinate coordA, coordinate coordB){
-	double X = std::pow( (coordA.x - coordB.y), 2);
+	double X = std::pow( (coordA.x - coordB.x), 2);
 	double Y = std::pow( (coordA.y - coordB.y), 2);
 	double Z = std::pow( (coordA.z - coordB.z), 2);
 return std::sqrt(X + Y + Z);

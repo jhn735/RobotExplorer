@@ -5,5 +5,8 @@ PROJECT_BIN = ../bin
 coordinate.o: coordinate.cpp
 	$(CC) $(FLAGS) -c $^ -o $(PROJECT_BIN)/$@
 
+stack.o: stack.cpp
+	$(CC) $(FLAGS) -c $^ -o $(PROJECT_BIN)/$@
+
 utils.o: utils.cpp
 	$(CC) $(FLAGS) -c $^ -o $(PROJECT_BIN)/$@

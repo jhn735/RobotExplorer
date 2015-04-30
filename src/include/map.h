@@ -50,9 +50,9 @@ public:
 		static double width_meters();
 	};//end section
 
-//private://map's private stash
+private://map's private stash
 	static const double pixels_per_meter = MAP_PIXELS_PER_METER;
-	
+	static int random_seed;	
 	double _map_length_meters;
 	double _map_width_meters;
 		//the map should consist of sections

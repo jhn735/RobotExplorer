@@ -87,6 +87,7 @@ double Map::Section::_width_meters = ceil_to(NEAREST, Robot::width());
 
 /****************Start Map********************/
 /* The functions in class Map */
+int Map::random_seed = 0;
 
 /*map constructor*/
 Map::Map(const char * mapFilename){
@@ -94,7 +95,6 @@ Map::Map(const char * mapFilename){
 	unsigned char * pixel_map = NULL;
 		unsigned width = 0;
 		unsigned length = 0;
-
 	load_pixel_map(mapFilename, pixel_map, width, length);
 	//set the map's length and width in meters
 		_map_length_meters = (double)(length/pixels_per_meter);
@@ -163,7 +163,8 @@ coordinate Map::generate_random_coord(){
 	if(map_explored()) return coordinate(0,0,0,0);
 
 	//generate a random number between 1 and 100 
-	double rand = rand_between(1, 100, 0);	
+	double rand = rand_between(1, 100, random_seed);
+		random_seed++;
 	//if the section is explorable() and isn't explored
 		//if rand is <= 0 return the center coordinate
 	while(true){

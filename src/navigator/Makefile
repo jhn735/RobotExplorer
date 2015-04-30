@@ -2,7 +2,7 @@ CC = /usr/bin/g++
 FLAGS = -g -I../include
 BIN = bin
 PROJECT_BIN = ../bin
-OBJ = $(BIN)/map.o $(BIN)/coordinate.o $(BIN)/png.o $(BIN)/utils.o
+OBJ = $(BIN)/map.o $(BIN)/coordinate.o $(BIN)/png.o $(BIN)/utils.o $(BIN)/stack.o
 
 test: testNav.cpp navigator.cpp $(OBJ)
 	$(CC) $(FLAGS) -o $(BIN)/$@ $^
@@ -21,6 +21,10 @@ $(BIN)/coordinate.o: $(PROJECT_BIN)/coordinate.o
 
 $(BIN)/utils.o: $(PROJECT_BIN)/utils.o
 	cp $^ $@
+
+$(BIN)/stack.o: $(PROJECT_BIN)/stack.o
+	cp $^ $@
+
 .PHONY: clean
 clean:
 	rm $(BIN)/*
