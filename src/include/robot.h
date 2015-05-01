@@ -13,6 +13,7 @@
 class Robot{
 	double yaw;
 		static const double yaw_speed = ROBOT_YAW_SPEED:
+		static const double movement_speed = ROBOT_MOVEMENT_SPEED;
 	double x_pos;
 	double y_pos;
 	coordinate position;

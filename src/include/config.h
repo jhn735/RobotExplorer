@@ -16,7 +16,7 @@
 	#define ROBOT_STARTPOS_THETA 45
 
 	//the default speed of movement for robot
-	#define ROBOT_YAW_SPEED 0.1
+	#define ROBOT_YAW_SPEED 0.01
 	#define ROBOT_MOVEMENT_SPEED 0.1
 
 	//map's conversion facter of pixels to meters
