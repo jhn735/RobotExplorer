@@ -7,12 +7,34 @@
 	#include <iostream>
 #define ROOT_INDEX 0;
 using namespace std;
+/*----node stuff ----*/
+Navigator::node::node(){
+	_coord = coordinate(0,0,0,0);
+	_parent = 0;
+	_index = 0;
+};
+
+Navigator::node::node(coordinate coord, int parent_index, int index){
+	_coord = coord; _parent = parent_index; _index = index;
+};
+
+coordinate Navigator::node::coord(){ return _coord;};
+
+Navigator::node Navigator::node::parent(){ return tree[_index];};
+
+int Navigator::node::index(){return _index;};
+
+bool Navigator::node::is_root(){ return _index == _parent;};
+
+bool Navigator::node::is_valid(){ return (_index >= 0) && (_parent >= 0);}
+
+/*********navigator stuff***************/
 Navigator::Navigator(Map * map, coordinate root){
 	//set the map
 	_map = map;
 	robot_location = root;	
 	//construct the root node and add it to the tree
-	add_node(root, NULL);
+	add_node(root, node(root, 0,0));
 	//initialize the waypoint stack with a new goal
 	coordinate goal = next_goal();
 	plan_path_to_goal(goal);
@@ -27,7 +49,7 @@ coordinate Navigator::next_waypoint(coordinate current_location){
 	//if the robot is not in tree then it either it failed or 
 		//achieved it's goal. start over.
 	if(!in_tree(robot_location)){
-		int parent = closest_in_tree(robot_location);
+		node parent = closest_in_tree(robot_location);
 		add_node(robot_location, parent);
 		waypoints.clear();
 	}
@@ -68,31 +90,31 @@ void Navigator::plan_path_to_goal(coordinate goal){
 	//add the goal coordinate to the waypoint stack
 	waypoints.push(goal);	
 	//find the closest node in the tree to goal
-	node n = *closest_in_tree(goal);
+	node n = closest_in_tree(goal);
 	//add that node's coordinate to the waypoint stack
-	waypoints.push(n.coord);
+	waypoints.push(n.coord());
 	//while the current node is not the root node
-	while(!root_node(n)){
+	while(!n.is_root()){
 		//set the current node to be the current node's parent
-		n = tree[n.parent];
+		n = n.parent();
 		//add the current node's coordinate to the waypoint stack
-		waypoints.push(n.coord);
+		waypoints.push(n.coord());
 	}
 	//create a new stack called sub_stack NOT replacing the waypoint stack
 	std::stack<coordinate> s;
 	//find the closest node in the tree to the current location
-	n = *closest_in_tree(robot_location);
+	n = closest_in_tree(robot_location);
 	//add that node's coordinate to the sub_stack
-	s.push(n.coord);
+	s.push(n.coord());
 	//while the current node is not the root node
-	while(!root_node()){
+	while(!n.is_root()){
 		//set the current node to be the current node's parent
-		n = tree[n.parent];
+		n = n.parent();
 		//add the current node's coordinate to the sub_stack
-		s.push(n.coord);
+		s.push(n.coord());
 	}
 	//until the sub_stack is empty
-	while(!s.empty() && s.top() != tree[0].coord){
+	while(!s.empty() && s.top() != tree[0].coord()){
 		//add the front of the sub_stack to the waypoint stack
 		waypoints.push(s.top());
 		//pop the front of the sub_stack
@@ -101,55 +123,52 @@ void Navigator::plan_path_to_goal(coordinate goal){
 };
 
 //create a new node and add it to the tree
-void Navigator::add_node(coordinate coord, int parent_index){
+void Navigator::add_node(coordinate coord, node parent){
 	if(in_tree(coord)) return;
-	node n;
-		n.coord = coord;
-		n.parent = parent_index;
-		n.index = tree.size();
+	node n(coord, parent.index(), tree.size());
 	tree.push_back(n);
-	node y;
 };
 
 //checks to see if the coordinate is in the tree
 bool Navigator::in_tree(coordinate coord){
 //if the find_node function returns NULL return false
-return find_node(coord) != -1;
+return find_node(coord).is_valid();
 };
 
 //finds the node with the coresponding coordinate
-int Navigator::find_node(coordinate coord){
-	if(tree.empty()) return -1;
+Navigator::node Navigator::find_node(coordinate coord){
+	if(tree.empty()) return node(coordinate(), -1, -1);
 	//for each element in tree 
 		//if the coordinate matches return the tree
 	for(int i = 0; i < tree.size(); i++)
-		if(tree[i].coord == coord) return i;
+		if(tree[i].coord() == coord) return tree[i];
 //all else fails return null
-return -1;
+return node(coordinate(), -1, -1);
 };
 
-int Navigator::closest_in_tree(coordinate goal){
-	node * closest = &tree[0]; 
+Navigator::node Navigator::closest_in_tree(coordinate goal){
+	node closest = tree[0]; 
 	double lowest_distance = std::numeric_limits<double>::max();
 	for(int i = 0; i < tree.size(); i++){
 		node n = tree[i]; 
-		double cur_dist = coordinate::distance(goal, n.coord); 
+		double cur_dist = coordinate::distance(goal, n.coord()); 
 		if(cur_dist < lowest_distance){
 			lowest_distance = cur_dist;
-			closest = &tree[i];
+			closest = tree[i];
 		}
 	}
-return closest.index;
+return closest;
 };
 
 void Navigator::print_tree(){
 	//for each element in the tree
 		//print the coordinate and the index of it's parent
+
 	for(int i = 0; i < tree.size(); i++){
 		node n = tree[i];
-		(n.coord).print();
+		(n.coord()).print();
 		std::cout << "\tparent index:"
-				  << n.parent  
+				  << n.parent().index()  
 				  << std::endl;
 	}
 		

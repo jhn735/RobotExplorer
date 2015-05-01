@@ -11,6 +11,10 @@
 
 
 class Robot{
+	double yaw;
+		static const double yaw_speed = ROBOT_YAW_SPEED:
+	double x_pos;
+	double y_pos;
 	coordinate position;
 	//directions robot my move or turn in. 
 	enum direction { FORWARD, BACKWARD, LEFT, RIGHT};
@@ -30,9 +34,9 @@ class Robot{
 		*Returns true if operation was successful
 	*/
 	//directions Forward and backward should not work here. 
-	bool turn(double angle, double speed, direction d);
+	bool turn(double angle, direction d);
 	//directions RIGHT and LEFT may or may not work here.
-	bool move(double distance, double speed, direction d);
+	bool move(double distance, direction d);
 
 public:
 	Robot();

@@ -15,20 +15,32 @@ public:
 
 //private:
 //a node
-	typedef struct node{
-		coordinate coord;
-		int parent;
-		unsigned index;
-	} node;
-		
-	std::vector<node> tree;
-	void add_node(coordinate coord, int parent_index);
+	class node{
+		public:
+			node();
+			node(coordinate coord, int parent_index, int index);
+			coordinate coord();
+			node parent();
+			int index();
+			bool is_root();
+			bool is_valid();
+
+		private:
+			coordinate _coord;
+			int _parent;
+			int _index;
+
+	};
+	//pointers vector will from time to time change the adresses of 
+		//it's elements	but certainly not the value
+	std::vector<node*> tree;
+	void add_node(coordinate coord, node parent);
 	bool in_tree(coordinate coord);
 	bool root_node(node n);
 	//returns the index of the nodes
 		//pointers change in a vector duh
-	int find_node(coordinate coord);
-	int closest_in_tree(coordinate goal);
+	node find_node(coordinate coord);
+	node closest_in_tree(coordinate goal);
 
 	//the queue of waypoints that the robot follows
 		//to meet its goals
