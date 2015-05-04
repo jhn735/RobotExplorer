@@ -1,5 +1,6 @@
 CC = /usr/bin/g++
-FLAGS = -g -I../include
+FLAGS = -g -I../include -I/usr/local/include/player-3.1
+LIBS = -L/usr/local/lib -rdynamic -lplayerc++ -lboost_thread -lboost_system -lboost_signals -lplayerc -lm -lz -lplayerinterface -lplayerwkb -lplayercommon -Wl,-rpath,/usr/local/lib
 BIN = bin
 PROJECT_BIN = ../bin
 OBJ = $(BIN)/map.o $(BIN)/coordinate.o $(BIN)/png.o $(BIN)/utils.o $(BIN)/stack.o
@@ -8,7 +9,7 @@ test: testNav.cpp navigator.cpp $(OBJ)
 	$(CC) $(FLAGS) -o $(BIN)/$@ $^
 
 navigator.o: navigator.cpp
-	$(CC) $(FLAGS) -c $^ -o $(PROJECT_BIN)/$@
+	$(CC) $(FLAGS) $(LIBS) -c $^ -o $(PROJECT_BIN)/$@
 
 $(BIN)/png.o: $(PROJECT_BIN)/lodepng.o
 	cp $^ $@

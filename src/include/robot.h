@@ -5,9 +5,10 @@
 #include "coordinate.h"
 #include "map.h"
 #include "navigator.h"
-
+#include "args.h"
+	#include <libplayerc++/playerc++.h>
 	#include <iostream>
-//#include <libplayerc++/playerc++.h>
+
 
 
 class Robot{
@@ -17,16 +18,17 @@ class Robot{
 	double x_pos;
 	double y_pos;
 	coordinate position;
+	
 	//directions robot my move or turn in. 
 	enum direction { FORWARD, BACKWARD, LEFT, RIGHT};
 
 	//the server client stuff for player.
 		//for information on how these work go to:
 		//http://playerstage.sourceforge.net/doc/Player-cvs/player
-	/*PlayerClient * client;
-	Position2dProxy * pp;
-	LaserProxy * lp;
-	*/
+	PlayerClient * client;
+	Position2dProxy * pos;
+	LaserProxy * laser;
+	
 	Navigator * navi;
 	Map * map;
 
@@ -40,7 +42,7 @@ class Robot{
 	bool move(double distance, direction d);
 
 public:
-	Robot();
+	Robot(Map * m, coordinate start_pos);
 	//starts up the robot client, connects with the server etc.	
 	void run();
 
