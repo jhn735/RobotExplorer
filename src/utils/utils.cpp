@@ -79,3 +79,7 @@ void dealloc_2D_array(unsigned char ** arr, unsigned w, unsigned h){
 	}
 	delete arr;
 };
+
+void wait_iterations(int num_iterations){
+	for(int i = num_iterations; i>0; i--){}
+};

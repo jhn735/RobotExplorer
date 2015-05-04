@@ -15,6 +15,7 @@
 
 class Robot{
 	static const double yaw_speed = ROBOT_YAW_SPEED;
+	static const double yaw_range = 0.1;
 	static const double movement_speed = ROBOT_MOVEMENT_SPEED;
 	static const double robot_min_range = ROBOT_MIN_RANGE;	
 	coordinate position();

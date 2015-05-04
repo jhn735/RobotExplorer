@@ -19,4 +19,6 @@ void disp(unsigned char ** a, unsigned w, unsigned h);
 void disp(unsigned char * a, unsigned w, unsigned h);
 
 void dealloc_2D_array(unsigned char ** arr, unsigned w, unsigned h);
+
+void wait_iterations(int num_iterations);
 #endif

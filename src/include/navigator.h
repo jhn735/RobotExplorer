@@ -11,7 +11,7 @@ public:
 	
 	void print_tree();
 	//get the waypoint at the top of the queue given the current location
-	coordinate next_waypoint(coordinate location);
+	coordinate next_waypoint(coordinate location, bool success);
 
 //private:
 //a node

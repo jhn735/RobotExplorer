@@ -1,6 +1,7 @@
 #include "coordinate.h"
 #include <cmath> 
 #include <iostream>
+#define PI          3.141592653589793238462643383279502884L /* pi */
 /*
 	Having something that stores coordinates together is much convenient wow.
 */
@@ -26,6 +27,10 @@ double coordinate::angle_towards(coordinate src, coordinate dest){
 	//pretend that src is the origin of it's own plane
 	//get the difference, this is the same as setting the origin to src
 	coordinate diff = dest - src;
+	if(diff.x == 0)
+		if(diff.y < 0) return 3*PI/2;
+		else if(diff.y > 0) return PI/2;
+		else if(diff.y == 0) return src.theta;
 	//get the angle between the src and destination
 return atan(diff.y/diff.x);
 };

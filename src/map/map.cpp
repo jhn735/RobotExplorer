@@ -78,7 +78,7 @@ return true;
 
 //it is best to tune NEAREST to produce the smallest map but also so that
 	//it doesn't produce extreme false positives 0.5 and 1 seem to work
-#define NEAREST 0.5
+#define NEAREST 0.75
 double Map::Section::_length_meters = ceil_to(NEAREST, ROBOT_LENGTH_METERS);
 	double Map::Section::width_meters(){ return _width_meters;};
 double Map::Section::_width_meters = ceil_to(NEAREST, ROBOT_HEIGHT_METERS);

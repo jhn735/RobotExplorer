@@ -51,29 +51,38 @@ bool retVal = true;
 	//get the new angle
 	double angle = coordinate::angle_towards(position(), dest);
 		double ang_dist = std::abs(angle - pos->GetYaw());	
-	//if the new angle is the same as the old one return
-	if(ang_dist == 0) return true;	
-		
- 	double speed = yaw_speed;
- 	if((angle - pos->GetYaw()) > 0) speed *= -1;
-	pos->SetSpeed(0, speed);	
 
+	//if the new angle is the same as the old one return
+	if(ang_dist <= yaw_range)
+		if(obstacle_present()) return false;
+		else return true; 	
+		
 	while(true){
+		double speed = yaw_speed*(ang_dist);
+			if(speed < 0.1) speed = 0.1;
+		//set the speed proportional to the angle distance
+		pos->SetSpeed(0, speed);
+		
+		//stop and smell the roses
+		stop();
+		client->Read();
+
 		//if there is something in the way stop the robot and return failure
 		if(obstacle_present()){
-			retVal = false;	break;
+			retVal = false;
 		}
 		//if the goal has been reached break;
-		if(pos->GetYaw() == angle) break;
+		if(pos->GetYaw()) return true;
 		
 		double cur_ang_dist = std::abs(angle - pos->GetYaw());
+	//	std::cout << "turn_toward.cur_ang_dist" << cur_ang_dist << std::endl;
 		//if the distance has actually increased you overshot it. break success
-		if(ang_dist < cur_ang_dist) break;
+		if(ang_dist < cur_ang_dist || cur_ang_dist <= yaw_range) return true;
 		else ang_dist = cur_ang_dist; //otherwise keep going
 	}
 	//stop the robot at the end
 	stop();
-return retVal;
+return true;
 };
 
 bool Robot::move(double distance){
@@ -84,9 +93,16 @@ bool retVal = true;
 	
 	double speed = movement_speed;
 		if(distance < 0) speed *=-1;
-	pos->SetSpeed(speed, 0);
-	
+
 	while(true){
+		pos->SetSpeed(speed, 0);
+				
+		//stop and smell the roses
+		client->Read();
+
+		//report location to map
+		map->mark_explored(position());
+		
 		if(obstacle_present()){
 			retVal = false; break;
 		}
@@ -102,12 +118,14 @@ return retVal;
 void Robot::stop(){ pos->SetSpeed(0,0); };
 
 bool Robot::obstacle_present(){
-	double minR = laser->GetMinRight();
-	double minL = laser->GetMinLeft();
-	//if there is something within the min range return true
-	return (minR <= robot_min_range) ||
-			(minL <= robot_min_range);
-
+	//iterate through all points in the scan
+		//it it is less than the allotted range return true
+	int count = laser->GetCount();
+	for(int i = 0; i < count; i++){
+		if(laser->GetRange(i) <= robot_min_range) return true;
+	} 
+	
+return false;
 };
 
 //the piece de resistance
@@ -162,24 +180,25 @@ try
 
 
     pos->SetMotorEnable (true);
-	
+	client->Read();
 	//initialize the navigator
 	navi = new Navigator(map, position()); 
 	//report the current location of the robot to map
 	map->mark_explored(position());
 	
+	bool success = true; 
 	//while there is still places to go in map
 	while(!map->map_explored()){
 		client->Read();
 		std::cout << "position:";
 		position().print();
 		//get the next waypoint
-		coordinate waypoint = navi->next_waypoint(position());
+		coordinate waypoint = navi->next_waypoint(position(), success);
 		std::cout << "waypoint:";
 		//print waypoint
 		waypoint.print();
 		//go to said waypoint
-		go_to(waypoint);
+		success = go_to(waypoint);
 		//print the status of the map
 		//map->print_section_map();
 		

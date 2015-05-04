@@ -46,7 +46,10 @@ Navigator::Navigator(Map * map, coordinate root){
 //get the waypoint at the top of the queue given the current location
 	//this function assumes that the robot has either reached it waypoint
 	//or completely failed to reach it. No in betweens.
-coordinate Navigator::next_waypoint(coordinate current_location){
+coordinate Navigator::next_waypoint(coordinate current_location, bool success){
+	//if the robot said it didn't make it then it didn't make it.
+	if(!success) waypoints.clear();
+	
 	//set the robot_location to be location.
 	robot_location = current_location;
 	//if the robot is not in tree then it either it failed or 
@@ -54,7 +57,6 @@ coordinate Navigator::next_waypoint(coordinate current_location){
 	if(!in_tree(robot_location)){
 		node * parent = closest_in_tree(robot_location);
 		add_node(robot_location, parent);
-		waypoints.clear();
 	}
 
 	if(!waypoints.empty()){
@@ -69,6 +71,7 @@ coordinate Navigator::next_waypoint(coordinate current_location){
 		coordinate goal = next_goal();
 		plan_path_to_goal(goal);
 	}
+
 //return the next element in the stack
 return waypoints.top();
 };
