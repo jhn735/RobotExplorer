@@ -7,6 +7,8 @@
 	#define ROBOT_LENGTH_METERS 0.44
 	#define ROBOT_WIDTH_METERS 0.38
 	#define ROBOT_HEIGHT_METERS 0.22
+	
+	#define ROBOT_MIN_RANGE 0.5
 
 	//robots starting position in meters3 and degrees
 		//respectively
@@ -16,8 +18,8 @@
 	#define ROBOT_STARTPOS_THETA 45
 
 	//the default speed of movement for robot
-	#define ROBOT_YAW_SPEED 0.01
-	#define ROBOT_MOVEMENT_SPEED 0.1
+	#define ROBOT_YAW_SPEED 0.1
+	#define ROBOT_MOVEMENT_SPEED 1
 
 	//map's conversion facter of pixels to meters
 	#define MAP_PIXELS_PER_METER 36.995

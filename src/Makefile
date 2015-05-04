@@ -7,8 +7,8 @@ REQS = $(PROJECT_BIN)/robot.o $(PROJECT_BIN)/map.o $(PROJECT_BIN)/navigator.o\
 $(PROJECT_BIN)/coordinate.o $(PROJECT_BIN)/stack.o $(PROJECT_BIN)/utils.o \
 $(PROJECT_BIN)/lodepng.o
 
-all: $(REQS) main.cpp
-	$(CC) $(FLAGS) $(LIBS) -o $@ $^
+all: main.cpp $(REQS) 
+	$(CC) $(FLAGS) $^ $(LIBS) -o $@
 
 $(PROJECT_BIN)/robot.o: robot/robot.cpp
 	$(CC) $(FLAGS) $(LIBS) -c $^ -o $@
@@ -31,4 +31,7 @@ $(PROJECT_BIN)/utils.o: utils/utils.cpp
 $(PROJECT_BIN)/lodepng.o:  lodepng/lodepng.cpp
 	$(CC) $(FLAGS) -c $^ -o $@
 
+.PHONY: clean
+clean:
+	rm $(PROJECT_BIN)/*.o
 

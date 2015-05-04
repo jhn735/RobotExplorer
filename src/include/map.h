@@ -53,12 +53,20 @@ public:
 private://map's private stash
 	static const double pixels_per_meter = MAP_PIXELS_PER_METER;
 	static int random_seed;	
-	double _map_length_meters;
+	
+	double _map_length_meters;	
 	double _map_width_meters;
+	
+	//the amound of meters that section should shift it's corner to align with 
+		//the stage map
+	static double _grid_shift_length;
+	static double _grid_shift_width;
+	
 		//the map should consist of sections
 	Section ** _section_map;
 		unsigned _section_map_w;
 		unsigned _section_map_l;
+	//guess what this function does..
 	Section * get_containing_section(coordinate coord);
 		//the load map function they do what their name suggests
 			//load the image from file

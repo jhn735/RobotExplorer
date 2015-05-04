@@ -23,8 +23,8 @@ Map::Section::Section(
 
 ){
 	//translate the coordinate from pixels to meters
-		double x_meters = corner_pixel.x / pixels_per_meter;
-		double y_meters = corner_pixel.y / pixels_per_meter;
+		double x_meters = (corner_pixel.x / pixels_per_meter) + Map::_grid_shift_width;
+		double y_meters = (corner_pixel.y / pixels_per_meter) + Map::_grid_shift_width;
 	_corner_meter = coordinate(x_meters, y_meters, 0, 0);
 
 		y_meters += _length_meters/2;
@@ -36,7 +36,7 @@ Map::Section::Section(
 
 	//assume the section is non-explorable, innocent until proven guilty
 	_explorable = false;
-
+	_explored = false;
 	//if the section's boundaries extend past the image's boundaries
 		double section_y_upper = corner_pixel.y+length_pixels;
 	if(corner_pixel.y < 0 || section_y_upper > map_l) return;
@@ -78,7 +78,7 @@ return true;
 
 //it is best to tune NEAREST to produce the smallest map but also so that
 	//it doesn't produce extreme false positives 0.5 and 1 seem to work
-#define NEAREST 1
+#define NEAREST 0.5
 double Map::Section::_length_meters = ceil_to(NEAREST, ROBOT_LENGTH_METERS);
 	double Map::Section::width_meters(){ return _width_meters;};
 double Map::Section::_width_meters = ceil_to(NEAREST, ROBOT_HEIGHT_METERS);
@@ -88,7 +88,8 @@ double Map::Section::_width_meters = ceil_to(NEAREST, ROBOT_HEIGHT_METERS);
 /****************Start Map********************/
 /* The functions in class Map */
 int Map::random_seed = 0;
-
+double Map::_grid_shift_length = 0;
+double Map::_grid_shift_width = 0;
 /*map constructor*/
 Map::Map(const char * mapFilename){
 	// load the pixel map
@@ -98,7 +99,10 @@ Map::Map(const char * mapFilename){
 	load_pixel_map(mapFilename, pixel_map, width, length);
 	//set the map's length and width in meters
 		_map_length_meters = (double)(length/pixels_per_meter);
+			_grid_shift_length = -_map_length_meters/2;
+			
 		_map_width_meters = (double)(width/pixels_per_meter);
+			_grid_shift_width = -_map_width_meters/2;
 	load_section_map(pixel_map, length, width, 
 					_section_map, _section_map_w, _section_map_l);
 };
@@ -133,7 +137,7 @@ void Map::load_section_map(
 	//calculate the width and length of the _section_map
 		double width_pixels = ceil(Section::width_meters()*pixels_per_meter);
 	section_w = ceil(pixel_w/width_pixels);
-
+		
 		double length_pixels = ceil(Section::length_meters()*pixels_per_meter);
 	section_l = ceil(pixel_l/length_pixels);
 	
@@ -184,7 +188,14 @@ void Map::print_section_map(){
 	for(int i = 0; i < _section_map_l; i++){
 		for(int j = 0; j < _section_map_w; j++){
 			Section s = _section_map[i][j];
-			std::cout << s.explorable();
+			//if s is explorable, 
+				//print either 'e' for explored 
+				//a 'u' for unexplored
+			//otherwise print 0
+			if(s.explorable()){
+				if(s.explored()) std::cout << 'e';
+				else std::cout << 'u';
+			}else std::cout << '0';
 		}
 		std::cout << std::endl; 
 	}
