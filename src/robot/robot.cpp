@@ -7,12 +7,8 @@
 	#include <cmath>
 	#include <cstdlib>
 	#include <stdint.h>
-	#if !defined (WIN32) || defined (__MINGW32__)
-		  #include <unistd.h>
-	#endif
-	#if !HAVE_GETOPT
-  		#include <replace.h>
-	#endif
+	#include <unistd.h>
+using namespace std;
 using namespace PlayerCc;
 Robot::Robot(Map * m){
 	//set the map
@@ -37,6 +33,7 @@ bool retVal;
 	if(!retVal) return retVal;
 	
 	double distance = coordinate::distance(position(), dest);
+	//cout << "distance:" << distance << endl;
 	//if no obstacles around
 		//move to the destination
 	if(!obstacle_present())
@@ -47,72 +44,70 @@ return retVal;
 };
 
 bool Robot::turn_toward(coordinate dest){
-bool retVal = true;
+	std::cout << "turning" << endl;
 	//get the new angle
 	double angle = coordinate::angle_towards(position(), dest);
-		double ang_dist = std::abs(angle - pos->GetYaw());	
+	//cout << "angle" << angle << endl;
+	double ang_dist;				
+	double speed;
 
-	//if the new angle is the same as the old one return
-	if(ang_dist <= yaw_range)
-		if(obstacle_present()) return false;
-		else return true; 	
-		
 	while(true){
-		double speed = yaw_speed*(ang_dist);
-			if(speed < 0.1) speed = 0.1;
-		//set the speed proportional to the angle distance
-		pos->SetSpeed(0, speed);
-		
 		//stop and smell the roses
-		stop();
 		client->Read();
-
-		//if there is something in the way stop the robot and return failure
-		if(obstacle_present()){
-			retVal = false;
-		}
-		//if the goal has been reached break;
-		if(pos->GetYaw()) return true;
 		
-		double cur_ang_dist = std::abs(angle - pos->GetYaw());
-	//	std::cout << "turn_toward.cur_ang_dist" << cur_ang_dist << std::endl;
-		//if the distance has actually increased you overshot it. break success
-		if(ang_dist < cur_ang_dist || cur_ang_dist <= yaw_range) return true;
-		else ang_dist = cur_ang_dist; //otherwise keep going
+		//find the distance between the current Yaw and the goal angle
+		ang_dist = std::abs(angle - pos->GetYaw());
+		
+		//if the distance is within range. break success
+		if(ang_dist <= yaw_range){ stop(); return true;}
+		
+		//if there is something in the way go backwards for a bit
+		if(obstacle_present()) {
+			pos->SetSpeed(-movement_speed, 0);
+			sleep(1);
+			stop();
+		};
+		
+		//set the speed proportional to the angle distance 
+			//making sure to turn in the right direction.
+			speed = yaw_speed*ang_dist;
+			if(speed < 0.1) speed = 0.1;
+			if((angle - pos->GetYaw()) < 0) speed *= -1;
+		pos->SetSpeed(0, speed);
 	}
-	//stop the robot at the end
+
+//if somehow execution reaches here stop the robot. 
+	//Go home computer, you're drunk.
 	stop();
-return true;
+return false;
 };
 
 bool Robot::move(double distance){
-bool retVal = true;
+cout << "moving" << endl;
 //if there is nowhere to move return true;
 	if(distance == 0) return true;
+	//to keep track of the distance covered
 	coordinate pos0 = position();
 	
-	double speed = movement_speed;
-		if(distance < 0) speed *=-1;
-
+	pos->SetSpeed(movement_speed, 0);
+	
 	while(true){
-		pos->SetSpeed(speed, 0);
-				
 		//stop and smell the roses
 		client->Read();
-
 		//report location to map
 		map->mark_explored(position());
-		
-		if(obstacle_present()){
-			retVal = false; break;
-		}
-		double cur_dist = coordinate::distance(pos0, position());
-		if(cur_dist >= distance) break;
+		//if there is an obstacle stop;
+		if(obstacle_present()){	stop(); return false;}
+		//if the distance has been covered stop
+		if( coordinate::distance(position(), pos0) >= distance){
+		 stop(); 
+		 return true;}
 	};
 
-	//stop the robot at the end
+	//if somehow execution reaches here stop the robot. 
+		//Go home computer, you're drunk.
 	stop();
-return retVal;
+return false;
 };
 
 void Robot::stop(){ pos->SetSpeed(0,0); };
@@ -129,36 +124,6 @@ return false;
 };
 
 //the piece de resistance
-
-/* Some or all of the following code has been provided and repurposed with the 
-	following message and conditions:
-Copyright (c) 2005, Brad Kratochvil, Toby Collett, Brian Gerkey, Andrew Howard, ...
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice,
-      this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice,
-      this list of conditions and the following disclaimer in the documentation
-      and/or other materials provided with the distribution.
-    * Neither the name of the Player Project nor the names of its contributors
-      may be used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
 void Robot::run(){
 std::string  gHostname(PlayerCc::PLAYER_HOSTNAME);
 uint32_t        gPort(PlayerCc::PLAYER_PORTNUM);
@@ -169,8 +134,6 @@ try
   {
     using namespace PlayerCc;
 //set up the robot control stuff
-
-
     PlayerClient robo(gHostname, (uint32_t)gPort);
      	client = &robo;
     Position2dProxy pp(client, (uint32_t)gIndex);
@@ -187,27 +150,35 @@ try
 	map->mark_explored(position());
 	
 	bool success = true; 
+	coordinate last_waypoint = position();
+	int sameCount = 0;
 	//while there is still places to go in map
 	while(!map->map_explored()){
 		client->Read();
 		std::cout << "position:";
 		position().print();
+		//print the status of that venture
+		cout << endl << success << endl;
 		//get the next waypoint
 		coordinate waypoint = navi->next_waypoint(position(), success);
-		std::cout << "waypoint:";
+
 		//print waypoint
-		waypoint.print();
+		cout << "waypoint:"; waypoint.print();
+		if(last_waypoint == waypoint) sameCount++;
+		else{ last_waypoint = waypoint; sameCount = 0;}
 		//go to said waypoint
 		success = go_to(waypoint);
+		//print the status of that venture
+		cout << endl << success << endl;
 		//print the status of the map
 		//map->print_section_map();
 		
 	};
 	
   }
-  catch (PlayerCc::PlayerError & e)
+  catch (PlayerCc::PlayerError & err)
   {
-    std::cerr << e << std::endl;
+    std::cerr << err << std::endl;
     return;
   }
 };

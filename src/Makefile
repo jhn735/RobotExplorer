@@ -8,7 +8,7 @@ $(PROJECT_BIN)/coordinate.o $(PROJECT_BIN)/stack.o $(PROJECT_BIN)/utils.o \
 $(PROJECT_BIN)/lodepng.o
 
 all: main.cpp $(REQS) 
-	$(CC) $(FLAGS) $^ $(LIBS) -o $@
+	$(CC) $(FLAGS) $^ $(LIBS) -o $(PROJECT_BIN)/$@
 
 $(PROJECT_BIN)/robot.o: robot/robot.cpp
 	$(CC) $(FLAGS) $(LIBS) -c $^ -o $@
@@ -33,5 +33,5 @@ $(PROJECT_BIN)/lodepng.o:  lodepng/lodepng.cpp
 
 .PHONY: clean
 clean:
-	rm $(PROJECT_BIN)/*.o
+	rm $(PROJECT_BIN)/*
 

@@ -1,4 +1,5 @@
 #include "coordinate.h"
+#include "config.h"
 #include <cmath> 
 #include <iostream>
 #define PI          3.141592653589793238462643383279502884L /* pi */
@@ -33,6 +34,10 @@ double coordinate::angle_towards(coordinate src, coordinate dest){
 		else if(diff.y == 0) return src.theta;
 	//get the angle between the src and destination
 return atan(diff.y/diff.x);
+};
+
+bool coordinate::near(coordinate a, coordinate b){
+return distance(a,b) <= ROBOT_COORD_RANGE;
 };
 
 void coordinate::print(){

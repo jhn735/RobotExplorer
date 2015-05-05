@@ -37,7 +37,7 @@ Navigator::Navigator(Map * map, coordinate root){
 	_map = map;
 	robot_location = root;	
 	//construct the root node and add it to the tree
-	add_node(root, new node(root, NULL,0));
+	add_node(root, NULL);
 	//initialize the waypoint stack with a new goal
 	coordinate goal = next_goal();
 	plan_path_to_goal(goal);
@@ -47,11 +47,15 @@ Navigator::Navigator(Map * map, coordinate root){
 	//this function assumes that the robot has either reached it waypoint
 	//or completely failed to reach it. No in betweens.
 coordinate Navigator::next_waypoint(coordinate current_location, bool success){
-	//if the robot said it didn't make it then it didn't make it.
-	if(!success) waypoints.clear();
+	
+	//if the robot said it didn't make it, check to see if it came close
+	success = success || coordinate::near(current_location, waypoints.top());
+	cout << "navi_success" << success << endl;
+	if(!success){waypoints.clear();}
 	
 	//set the robot_location to be location.
 	robot_location = current_location;
+	
 	//if the robot is not in tree then it either it failed or 
 		//achieved it's goal. start over.
 	if(!in_tree(robot_location)){
@@ -62,7 +66,7 @@ coordinate Navigator::next_waypoint(coordinate current_location, bool success){
 	if(!waypoints.empty()){
 		//if the waypoint has been reached remove from stack 
 			//otherwise the robot was blocked
-		if(robot_location == waypoints.top()) waypoints.pop();
+		if( coordinate::near(robot_location,waypoints.top()) ) waypoints.pop();
 	}
 	//if the queue is empty
 		//get the next goal
@@ -70,6 +74,7 @@ coordinate Navigator::next_waypoint(coordinate current_location, bool success){
 	if(waypoints.empty()){
 		coordinate goal = next_goal();
 		plan_path_to_goal(goal);
+		if( coordinate::near(robot_location,waypoints.top()) ) waypoints.pop();
 	}
 
 //return the next element in the stack
@@ -87,6 +92,7 @@ coordinate Navigator::next_goal(){
 		// construct the end condition
 		cond = !(_map->accessible(goal));
 			cond = cond && !(in_tree(goal));
+			cond = cond && !coordinate::near(goal, closest_in_tree(goal)->coord());
 	}while(cond);	
 
 return goal;
@@ -131,6 +137,8 @@ void Navigator::plan_path_to_goal(coordinate goal){
 //create a new node and add it to the tree
 void Navigator::add_node(coordinate coord, node * parent){
 	if(in_tree(coord)) return;
+	if(parent != NULL)
+		if( coordinate::near(coord, parent->coord()) ) return;
 	tree.push_back(new node(coord, parent, tree.size()));
 };
 
