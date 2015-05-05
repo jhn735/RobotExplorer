@@ -24,9 +24,8 @@ Map::Section::Section(
 ){
 	//translate the coordinate from pixels to meters
 		double x_meters = (corner_pixel.x / pixels_per_meter) + Map::_grid_shift_width;
-		double y_meters = (corner_pixel.y / pixels_per_meter) + Map::_grid_shift_width;
+		double y_meters = (corner_pixel.y / pixels_per_meter) + Map::_grid_shift_length;
 	_corner_meter = coordinate(x_meters, y_meters, 0, 0);
-
 		y_meters += _length_meters/2;
 		x_meters += _width_meters/2;
 	_center_meter = coordinate(x_meters, y_meters, 0, 0);
@@ -100,7 +99,6 @@ Map::Map(const char * mapFilename){
 	//set the map's length and width in meters
 		_map_length_meters = (double)(length/pixels_per_meter);
 			_grid_shift_length = -_map_length_meters/2;
-			
 		_map_width_meters = (double)(width/pixels_per_meter);
 			_grid_shift_width = -_map_width_meters/2;
 	load_section_map(pixel_map, length, width, 
@@ -167,7 +165,7 @@ coordinate Map::generate_random_coord(){
 	if(map_explored()) return coordinate(0,0,0,0);
 
 	//generate a random number between 1 and 100 
-	double rand = rand_between(1, 100, random_seed);
+	double rand = rand_between(1, 1000, random_seed);
 		random_seed++;
 	//if the section is explorable() and isn't explored
 		//if rand is <= 0 return the center coordinate

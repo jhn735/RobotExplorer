@@ -15,7 +15,7 @@
 
 class Robot{
 	static const double yaw_speed = ROBOT_YAW_SPEED;
-	static const double yaw_range = 0.1;
+	static const double yaw_range = 0.5;
 	static const double movement_speed = ROBOT_MOVEMENT_SPEED;
 	static const double robot_min_range = ROBOT_MIN_RANGE;	
 	coordinate position();
@@ -34,6 +34,8 @@ class Robot{
 		*Negative number changes direction to opposite of specified.
 		*Returns true if operation was successful
 	*/
+	//explore goes on until an obstacle is found
+	bool explore();
 	//has robot goto to the specified point
 	bool go_to(coordinate dest);
 	//directions Forward and backward should not work here. 
@@ -42,6 +44,8 @@ class Robot{
 	bool move(double distance);
 	//stops the robot	
 	void stop();
+	//makes the robot move back a bit
+	void step_back();
 	//checks to see if there is an obstacle
 	bool obstacle_present();
 public:

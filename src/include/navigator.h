@@ -46,6 +46,7 @@ public:
 		//to meet its goals
 	stack waypoints;
 	coordinate robot_location;
+	coordinate last_location;
 	Map * _map;
 	
 	//looks at the map and returns the coordinate of the next goal.

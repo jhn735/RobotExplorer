@@ -24,6 +24,14 @@ coordinate Robot::position(){
 	
 return coordinate(x, y, 0, theta);
 };
+//explore in a straight path
+bool Robot::explore(){
+	if(obstacle_present()) return false;
+	while(!obstacle_present())
+		move(1);
+		
+return true;
+};
 
 bool Robot::go_to(coordinate dest){
 bool retVal;
@@ -34,11 +42,16 @@ bool retVal;
 	
 	double distance = coordinate::distance(position(), dest);
 	//cout << "distance:" << distance << endl;
+
 	//if no obstacles around
 		//move to the destination
 	if(!obstacle_present())
 		retVal = move(distance);
 	else return false;
+	
+	//if the movement was successful go again
+		//just for fun
+
 	
 return retVal;
 };
@@ -46,8 +59,9 @@ return retVal;
 bool Robot::turn_toward(coordinate dest){
 	std::cout << "turning" << endl;
 	//get the new angle
-	double angle = coordinate::angle_towards(position(), dest);
-	//cout << "angle" << angle << endl;
+	coordinate posi = position();
+	double angle = coordinate::angle_towards(posi, dest);
+	cout << "angle" << angle << endl;
 	double ang_dist;				
 	double speed;
 
@@ -55,6 +69,7 @@ bool Robot::turn_toward(coordinate dest){
 		//stop and smell the roses
 		client->Read();
 		
+		//cout << "cur_yaw" << pos->GetYaw();
 		//find the distance between the current Yaw and the goal angle
 		ang_dist = std::abs(angle - pos->GetYaw());
 		
@@ -63,9 +78,7 @@ bool Robot::turn_toward(coordinate dest){
 		
 		//if there is something in the way go backwards for a bit
 		if(obstacle_present()) {
-			pos->SetSpeed(-movement_speed, 0);
-			sleep(1);
-			stop();
+			step_back();
 		};
 		
 		//set the speed proportional to the angle distance 
@@ -97,7 +110,11 @@ cout << "moving" << endl;
 		//report location to map
 		map->mark_explored(position());
 		//if there is an obstacle stop;
-		if(obstacle_present()){	stop(); return false;}
+		if(obstacle_present()){	
+			stop(); 
+			step_back();
+			return false;
+		}
 		//if the distance has been covered stop
 		if( coordinate::distance(position(), pos0) >= distance){
 		 stop(); 
@@ -112,6 +129,11 @@ return false;
 
 void Robot::stop(){ pos->SetSpeed(0,0); };
 
+void Robot::step_back(){ 			
+	pos->SetSpeed(-movement_speed, 0);
+			sleep(2);
+			stop();
+};
 bool Robot::obstacle_present(){
 	//iterate through all points in the scan
 		//it it is less than the allotted range return true
@@ -139,6 +161,7 @@ try
     Position2dProxy pp(client, (uint32_t)gIndex);
     	pos = &pp;
     LaserProxy lp(client, (uint32_t)gIndex);
+
     	laser = &lp;
 
 
@@ -168,6 +191,11 @@ try
 		else{ last_waypoint = waypoint; sameCount = 0;}
 		//go to said waypoint
 		success = go_to(waypoint);
+		
+		//every once in a while explore
+		double r = rand_between(0, 10, 1);
+		if(r > 8) success = !explore();
+		
 		//print the status of that venture
 		cout << endl << success << endl;
 		//print the status of the map

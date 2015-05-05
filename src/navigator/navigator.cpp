@@ -35,7 +35,8 @@ bool Navigator::node::is_valid(){ return (_index >= 0) && (_parent >= 0);}
 Navigator::Navigator(Map * map, coordinate root){
 	//set the map
 	_map = map;
-	robot_location = root;	
+	robot_location = root;
+	last_location = root;	
 	//construct the root node and add it to the tree
 	add_node(root, NULL);
 	//initialize the waypoint stack with a new goal
@@ -50,16 +51,17 @@ coordinate Navigator::next_waypoint(coordinate current_location, bool success){
 	
 	//if the robot said it didn't make it, check to see if it came close
 	success = success || coordinate::near(current_location, waypoints.top());
-	cout << "navi_success" << success << endl;
+	//cout << "navi_success" << success << endl;
 	if(!success){waypoints.clear();}
 	
 	//set the robot_location to be location.
+	last_location = robot_location;
 	robot_location = current_location;
 	
 	//if the robot is not in tree then it either it failed or 
 		//achieved it's goal. start over.
 	if(!in_tree(robot_location)){
-		node * parent = closest_in_tree(robot_location);
+		node * parent = find_node(last_location);
 		add_node(robot_location, parent);
 	}
 
@@ -77,6 +79,7 @@ coordinate Navigator::next_waypoint(coordinate current_location, bool success){
 		if( coordinate::near(robot_location,waypoints.top()) ) waypoints.pop();
 	}
 
+print_tree();
 //return the next element in the stack
 return waypoints.top();
 };
@@ -115,7 +118,7 @@ void Navigator::plan_path_to_goal(coordinate goal){
 	//create a new stack called sub_stack NOT replacing the waypoint stack
 	std::stack<coordinate> s;
 	//find the closest node in the tree to the current location
-	n = *closest_in_tree(robot_location);
+	n = *find_node(last_location);
 	//add that node's coordinate to the sub_stack
 	s.push(n.coord());
 	//while the current node is not the root node
@@ -154,7 +157,7 @@ Navigator::node * Navigator::find_node(coordinate coord){
 	//for each element in tree 
 		//if the coordinate matches return the tree
 	for(int i = 0; i < tree.size(); i++)
-		if(tree[i]->coord() == coord) return tree[i];
+		if( coordinate::near(tree[i]->coord(), coord) ) return tree[i];
 //all else fails return null
 return NULL;
 };
