@@ -16,6 +16,7 @@ public:
 	void print_section_map();
 	bool accessible(coordinate coord);	
 	void mark_explored(coordinate coord);
+	bool coord_explored(coordinate coord);
 	//returns true if all regions have been explored
 		//for now should only return false
 	bool map_explored();	

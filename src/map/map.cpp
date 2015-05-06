@@ -266,5 +266,13 @@ bool Map::map_explored(){
 //if all else fails the map has been explored
 return true;
 };
+
+bool Map::coord_explored(coordinate coord){
+	for(unsigned i = 0; i < _section_map_l; i++)
+		for(unsigned j = 0; j < _section_map_w; j++)
+			if(_section_map[i][j].contains_coord(coord))
+				return _section_map[i][j].explored();
+return true;
+};
 /***********************End Map*****************/
 

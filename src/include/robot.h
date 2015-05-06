@@ -14,10 +14,16 @@
 
 
 class Robot{
+	
+	static const int FRONT_SIDE = 0;
+	static const int LEFT_SIDE = 1;
+	static const int RIGHT_SIDE = 2;
+	
 	static const double yaw_speed_high = ROBOT_YAW_SPEED_HIGH;
+	static const double yaw_speed_mid = ROBOT_YAW_SPEED_MID;
 	static const double yaw_speed_low = ROBOT_YAW_SPEED_LOW;
 	static const double yaw_speed_thresh = ROBOT_YAW_SPEED_THRESHOLD;
-	static const double yaw_range = 0.01;
+	static const double yaw_range = 0.1;
 	static const double movement_speed = ROBOT_MOVEMENT_SPEED;
 	static const double robot_min_range = ROBOT_MIN_RANGE;	
 	coordinate position();
@@ -42,6 +48,7 @@ class Robot{
 	bool go_to(coordinate dest);
 	//directions Forward and backward should not work here. 
 	bool turn_toward(coordinate dest);
+	bool turn(double radians);
 	//move forward a certain distance. to move backward set distance to negative
 	bool move(double distance);
 	//stops the robot	
@@ -50,6 +57,8 @@ class Robot{
 	void step_back();
 	//checks to see if there is an obstacle
 	bool obstacle_present();
+	bool obstacle_present(int side);
+	bool obstacle_present(int range1, int range2);
 public:
 	Robot(Map * m);
 	//starts up the robot client, connects with the server etc.	

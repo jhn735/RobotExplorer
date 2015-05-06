@@ -13,7 +13,8 @@ public:
 	void print_tree();
 	//get the waypoint at the top of the queue given the current location
 	coordinate next_waypoint(coordinate location, bool success);
-	
+	//print the waypoints
+	void print_waypoints();
 	//get the goal
 	coordinate get_goal();
 	//saves the current position

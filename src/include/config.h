@@ -9,7 +9,7 @@
 	#define ROBOT_HEIGHT_METERS 0.22
 	
 	#define ROBOT_MIN_RANGE 0.75
-	#define ROBOT_COORD_RANGE 3
+	#define ROBOT_COORD_RANGE 4
 
 	//robots starting position in meters3 and degrees
 		//respectively
@@ -23,6 +23,7 @@
 	#define ROBOT_YAW_SPEED_MID 0.1
 	#define ROBOT_YAW_SPEED_LOW 0.05
 	#define ROBOT_YAW_SPEED_THRESHOLD 0.2
+	
 	#define ROBOT_MOVEMENT_SPEED 1
 
 	//map's conversion facter of pixels to meters

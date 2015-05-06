@@ -46,16 +46,21 @@ Navigator::Navigator(Map * map, coordinate root){
 };
 
 bool Navigator::save_position(coordinate location, coordinate last_location){
+	
 	//find the parent
-	node * parent = find_node(last_location);
+	node * parent = closest_in_tree(last_location);
 	// if the parent isn't found then return false
-	if(parent == NULL) return false;
+	if(parent == NULL);
+	//cout << "\tNavi:'saving a spot!'" << endl;
 	//otherwise add the node
 	add_node(location, parent);
 	//set the var 'last location' to be last location
 	this->last_location = last_location;
 	//update the robot's current location
 	this->robot_location = location;
+	//rethink your plan
+	waypoints.clear();
+	plan_path_to_goal(this->goal);
 return true;
 };
 
@@ -64,29 +69,37 @@ return true;
 	//or completely failed to reach it. No in betweens.
 coordinate Navigator::next_waypoint(coordinate current_location, bool success){
 	
-	//if the robot said it didn't make it, check to see if it came close
-	success = success || coordinate::near(current_location, waypoints.top());
-	//cout << "navi_success" << success << endl;
-	if(!success){ failed_attempts++;}
-	//if there are no failed attempts then create a goal and go to the goal directly
-		//if the goal has been reached then make a new goal
-		//otherwise reset the failed attemps and plan it out. 
-	if(failed_attempts < Navigator::MAX_FAILED_ATTEMPTS
-		|| coordinate::near(current_location, goal) ){
-		this->goal = next_goal();
-	return goal;
-	} else{ failed_attempts = 0; waypoints.clear();}
-	
 	//set the robot_location to be location.
 	last_location = robot_location;
 	robot_location = current_location;
 	
-	//if the robot is not in tree then it either it failed or 
-		//achieved it's goal. start over.
-	/*if(!in_tree(robot_location)){
-		node * parent = find_node(last_location);
-		add_node(robot_location, parent);
-	}*/
+	//if the robot said it didn't make it, check to see if it came close
+	success = success 
+				|| coordinate::near(robot_location, goal);
+				
+	//if the last attempt to reach a waypoint failed. 
+		//Add to the fail attempts counter			
+	if(!success){ 
+		failed_attempts++;
+		cout << "Navi:not successful" << endl;
+	}
+	
+	//if the goal has been reached 
+		//generate a new goal and clear out all the waypoints
+	if(coordinate::near(robot_location, goal)){ 
+			this->goal = next_goal(); 
+			waypoints.clear();
+	}
+	
+	//if there are too many failed attempts then create a goal 
+	//and go to the goal directly
+	if(failed_attempts > Navigator::MAX_FAILED_ATTEMPTS ){
+	 cout << "failed too many times!" << endl;
+		this->goal = next_goal();
+		failed_attempts = 0;
+		waypoints.clear();
+	return goal; 
+	}
 
 	if(!waypoints.empty()){
 		//if the waypoint has been reached remove from stack 
@@ -101,7 +114,7 @@ coordinate Navigator::next_waypoint(coordinate current_location, bool success){
 		if( coordinate::near(robot_location,waypoints.top()) ) waypoints.pop();
 	}
 
-//print_tree();
+
 //return the next element in the stack
 return waypoints.top();
 };
@@ -142,7 +155,7 @@ void Navigator::plan_path_to_goal(coordinate goal){
 	//create a new stack called sub_stack NOT replacing the waypoint stack
 	std::stack<coordinate> s;
 	//find the closest node in the tree to the current location
-	n = *closest_in_tree(last_location);
+	n = *closest_in_tree(robot_location);
 	//add that node's coordinate to the sub_stack
 	s.push(n.coord());
 	//while the current node is not the root node
@@ -214,4 +227,6 @@ void Navigator::print_tree(){
 };
 
 coordinate Navigator::get_goal(){ return this->goal; };
+
+void Navigator::print_waypoints(){ waypoints.print();}
 

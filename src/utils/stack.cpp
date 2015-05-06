@@ -31,8 +31,10 @@ void stack::clear(){
 };
 
 void stack::print(){
-	for(unsigned i = 0; i < cont.size(); i++)
-		cont[i].print();		
+
+	for(unsigned i = 0; i < cont.size(); i++){
+		cout << "\t"; cont[i].print();		
+		}
 };
 
 

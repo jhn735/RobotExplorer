@@ -27,14 +27,21 @@ return coordinate(x, y, 0, theta);
 //explore in a straight path
 bool Robot::explore(){
 cout << "Exploring!" << endl;
-	if(obstacle_present()) return false;
+	coordinate prev_loc = position();
+	
+	if(obstacle_present()){ cout << "swiper no swiping" << endl; return false;}
 	while(!obstacle_present()){
-		move(1);
+		if(!move(1)) break;
+	}
+	if(!coordinate::near(position(), prev_loc)){
+		last_position = prev_loc;
+		navi->save_position(position(), last_position);
 	}
 return true;
 };
 
 bool Robot::go_to(coordinate dest){
+last_position = position();
 bool retVal;
 	cout << "Going to "; dest.print();
 	if(position() == dest) return true;
@@ -43,7 +50,6 @@ bool retVal;
 	if(!retVal) return retVal;
 	
 	double distance = coordinate::distance(position(), dest);
-	//cout << "distance:" << distance << endl;
 
 	//if no obstacles around
 		//move to the destination
@@ -54,7 +60,7 @@ bool retVal;
 	//if the movement was successful go again
 		//just for fun
 
-	
+ navi->save_position(position(), last_position);
 return retVal;
 };
 
@@ -78,14 +84,18 @@ bool Robot::turn_toward(coordinate dest){
 		//if the distance is within range. break success
 		if(ang_dist <= yaw_range){ stop(); return true;}
 		
-		//if there is something in the way go backwards for a bit
+		//if there is something in the way turn for 
 		if(obstacle_present()) {
-			step_back();
+			while(!obstacle_present(FRONT_SIDE))
+				pos->SetSpeed(0, yaw_speed_mid);
+			stop();
+			if(!move(1));
 		};
 		
 		//set the speed to low or high depending on the threshold
 			//making sure to turn in the right direction.
-			if(ang_dist < ROBOT_YAW_SPEED_THRESHOLD) speed = yaw_speed_low;
+			if(ang_dist < yaw_speed_thresh*3) speed = yaw_speed_mid;
+			if(ang_dist < yaw_speed_thresh) speed = yaw_speed_low;
 			else{ speed = yaw_speed_high; }
 			if((angle - pos->GetYaw()) < 0) speed *= -1;
 		pos->SetSpeed(0, speed);
@@ -97,8 +107,10 @@ bool Robot::turn_toward(coordinate dest){
 return false;
 };
 
+
 bool Robot::move(double distance){
 cout << "\t::Moving::" << endl;
+cout << "\tMoving distance:" << distance << endl;
 //if there is nowhere to move return true;
 	if(distance == 0) return true;
 	//to keep track of the distance covered
@@ -108,13 +120,20 @@ cout << "\t::Moving::" << endl;
 	
 	double dist;
 	
+	coordinate lpos = position();	
 	while(true){
 		//stop and smell the roses
 		client->Read();
+		
 		//get the distance
 		dist = coordinate::distance(position(), pos0);
-		//save the current position
-		//navi->save_position(position(), last_position);
+		//save the current position every fourth of the way there
+		if(distance > 8)
+			if( ((int)dist)%((int)(distance/4)) == 0){
+				navi->save_position(position(), lpos);
+				lpos = position();
+			}
+		
 		//report location to map
 		map->mark_explored(position());
 		//if there is an obstacle stop;
@@ -139,20 +158,41 @@ return false;
 
 void Robot::stop(){ pos->SetSpeed(0,0); };
 
-void Robot::step_back(){ 			
+void Robot::step_back(){ 
+	cout << "\tTaking a step back!" << endl;			
 	pos->SetSpeed(-movement_speed, 0);
 			sleep(1);
 			stop();
 };
 bool Robot::obstacle_present(){
-	//iterate through all points in the scan
-		//it it is less than the allotted range return true
-	int count = laser->GetCount();
-	for(int i = 0; i < count; i++){
+	return obstacle_present(0, laser->GetCount());
+};
+
+bool Robot::obstacle_present(int range1, int range2){
+	client->Read();
+	for(int i = range1; i < range2; i++){
 		if(laser->GetRange(i) <= robot_min_range) return true;
 	} 
-	
 return false;
+};
+
+bool Robot::obstacle_present(int side){
+	switch(side){
+		case FRONT_SIDE:{
+			int range1 = laser->GetCount()/2 - laser->GetCount()/8;
+			int range2 = laser->GetCount()/2 + laser->GetCount()/8;
+		return obstacle_present(range1, range2);	
+		};	
+		
+		case LEFT_SIDE:{
+		return laser->GetMinLeft() < robot_min_range;
+		};
+		
+		case RIGHT_SIDE:{
+		return laser->GetMinRight() < robot_min_range;
+		};
+	};
+return obstacle_present();
 };
 
 //the piece de resistance
@@ -176,6 +216,8 @@ try
 
 
     pos->SetMotorEnable (true);
+    cout << "*Dora has started exploring!" << endl;
+    cout << "Dora: \"Vamonos!\"" << endl;
 	client->Read();
 	//initialize the navigator
 	navi = new Navigator(map, position()); 
@@ -216,34 +258,36 @@ try
 		cout << "YWaypoint:"; y_waypoint.print();
 		
 		cout << "Navi's goal:"; navi->get_goal().print();
-		//set the last position
-		last_position = position();
+
 		
 		cout << "***************" << endl;
 		
+		//set the last position
+		last_position = position();
 		//start by going to the x waypoint
 			//if that doesn't work go back and try the y
 		if(!go_to(x_waypoint)){
-			navi->save_position(position(), last_position); 
 			go_to(last_position);
 			//if going to the y waypoint doesn't work then go back.
 			if(!go_to(y_waypoint)){
-				navi->save_position(position(), last_position);
 				go_to(last_position);
-			}
-		}
+			}else success = go_to(waypoint);
+		}else success = go_to(waypoint);
 		
-		navi->save_position(position(), last_position);
 		success = go_to(waypoint);
 		
-		if(success) cout << endl << "Reached waypoint!" << endl;
-		
 		//every once in a while explore
-		double r = rand_between(0, 10, 1);
-		if(r > 6){ 
-			success = !explore(); 	
-		}
+		//double r = rand_between(0, 10, 1);
 		
+		success = !explore(); 	
+			
+		if(success) cout << endl << "Reached waypoint!" << endl;
+		else cout << endl << "Failed to reach waypoint!" << endl;
+		
+		cout << endl << "#####WAYPOINTS#####" << endl;
+		navi->print_waypoints();
+		cout << endl << "###################" << endl;
+
 		cout << endl << "+++++TREE++++++" << endl;
 		navi->print_tree();
 		cout << endl << "+++++++++++++++" << endl;
@@ -254,6 +298,7 @@ try
 		cout << "*****************" << endl;
 		
 	};
+	cout << "We did it. We dit it. Horay!!!" << endl;
 	
   }
   catch (PlayerCc::PlayerError & err)
