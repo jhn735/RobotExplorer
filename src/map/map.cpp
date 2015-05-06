@@ -24,7 +24,7 @@ Map::Section::Section(
 ){
 	//translate the coordinate from pixels to meters
 		double x_meters = (corner_pixel.x / pixels_per_meter) + Map::_grid_shift_width;
-		double y_meters = (corner_pixel.y / pixels_per_meter) + Map::_grid_shift_length;
+		double y_meters = -(corner_pixel.y / pixels_per_meter) - Map::_grid_shift_length;
 	_corner_meter = coordinate(x_meters, y_meters, 0, 0);
 		y_meters += _length_meters/2;
 		x_meters += _width_meters/2;
@@ -45,8 +45,8 @@ Map::Section::Section(
 
 	//for each pixel in the square surrounding section_center
 		//if there is an obstacle, the section is indeed non-explorable.
-	for(int i = corner_pixel.y; (i < section_y_upper); i++)
-		for(int j = corner_pixel.x; (j < section_x_upper); j++)
+	for(unsigned i = corner_pixel.y; (i < section_y_upper); i++)
+		for(unsigned j = corner_pixel.x; (j < section_x_upper); j++)
 			if(map[i][j] != 255) return;
 	
 	//if all goes well the section is explorable
@@ -141,13 +141,13 @@ void Map::load_section_map(
 	
 		//set up the section map and fill it up
 	_section_map = new Section*[section_l];
-	for(int i = 0; i < section_l; i++){
+	for(unsigned i = 0; i < section_l; i++){
 			//new row in the section map
 		_section_map[i] = new Section[section_w];
 			//the y coordinate of the center
 		double corner_y = i*length_pixels;
 		
-		for(int j = 0; j < section_w; j++){
+		for(unsigned j = 0; j < section_w; j++){
 				//the x coordinate of the center
 			double corner_x = j*width_pixels;
 			coordinate corner = coordinate(corner_x, corner_y, 0, 0);
@@ -170,21 +170,21 @@ coordinate Map::generate_random_coord(){
 	//if the section is explorable() and isn't explored
 		//if rand is <= 0 return the center coordinate
 	while(true){
-	  for(int i = 0; i < _section_map_l; i++)
-		for(int j = 0; j < _section_map_l; j++){
+	  for(unsigned i = 0; i < _section_map_l; i++)
+		for(unsigned j = 0; j < _section_map_l; j++){
 			Section s = _section_map[i][j];
 			if(s.explorable() && !s.explored())
 				if(rand > 0) rand--;
 				else return s._center_meter;	
-		}//end for(int j...	
+		}//end for(unsigned j...	
 	};//end while
 };
 
 //prints out a map of traversible and non-traversible sections
 void Map::print_section_map(){
 	//for each section in section map
-	for(int i = 0; i < _section_map_l; i++){
-		for(int j = 0; j < _section_map_w; j++){
+	for(unsigned i = 0; i < _section_map_l; i++){
+		for(unsigned j = 0; j < _section_map_w; j++){
 			Section s = _section_map[i][j];
 			//if s is explorable, 
 				//print either 'e' for explored 
@@ -205,23 +205,23 @@ Map::Section * Map::get_containing_section(coordinate coord){
 	int est_j =(int) (coord.y/Section::length_meters());
 	int range = 2;
 
-	int i_lower = (est_i-range>0)?(est_i-range):0;
-	int i_upper = (est_i+range<_section_map_l)?(est_i+range):_section_map_l-1;
+	unsigned i_lower = (est_i-range>0)?(est_i-range):0;
+	unsigned i_upper = (est_i+range<_section_map_l)?(est_i+range):_section_map_l-1;
 
-	int j_lower = (est_j-range>0)?(est_j-range):0;
-	int j_upper = (est_j+range<_section_map_w)?(est_j+range):_section_map_w-1;
+	unsigned j_lower = (est_j-range>0)?(est_j-range):0;
+	unsigned j_upper = (est_j+range<_section_map_w)?(est_j+range):_section_map_w-1;
 
 	//for each section in the range
 		//if the section contains the coordinate and it is explorable
 			//return true		
-	for(int i = i_lower; i <= i_upper; i++){
-		for(int j = j_lower; j <= j_upper; j++){
+	for(unsigned i = i_lower; i <= i_upper; i++){
+		for(unsigned j = j_lower; j <= j_upper; j++){
 			Section s = _section_map[i][j];
 			if(s.contains_coord(coord)) return &_section_map[i][j];
 		}}
 	//if it hasn't been found search through all of them
-	for(int i = 0; i < _section_map_l; i++)
-		for(int j = 0; j < _section_map_w; j++){
+	for(unsigned i = 0; i < _section_map_l; i++)
+		for(unsigned j = 0; j < _section_map_w; j++){
 			Section s = _section_map[i][j];
 			if(s.contains_coord(coord)) return &_section_map[i][j]; 
 		}
@@ -238,14 +238,30 @@ return s->explorable();
 void Map::mark_explored(coordinate coord){
 	Section * s = get_containing_section(coord);
 	if(s == NULL) return;
-	s->set_explored();
+
+	double low_x = s->_center_meter.x - Section::width_meters();
+	
+	double low_y = s->_center_meter.y - Section::length_meters();
+
+	double x;
+	double y;
+
+	for(unsigned i = 0; i < 3; i++)
+		for(unsigned j = 0; j < 3; j++){
+				x = low_x+i*Section::width_meters();
+				y =  low_y+j*Section::length_meters();
+			coord = coordinate(x,y, 0,0);
+			s = get_containing_section(coord);
+			if(s == NULL) continue;
+			s->set_explored();
+		}
 };
 
 bool Map::map_explored(){
 	//for each section in section map
 		//if the section has not been explored return false
-	for(int i = 0; i < _section_map_l; i++)
-		for(int j = 0; j < _section_map_w; j++)
+	for(unsigned i = 0; i < _section_map_l; i++)
+		for(unsigned j = 0; j < _section_map_w; j++)
 			if(!_section_map[i][j].explored()) return false;	
 //if all else fails the map has been explored
 return true;

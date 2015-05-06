@@ -14,12 +14,14 @@
 
 
 class Robot{
-	static const double yaw_speed = ROBOT_YAW_SPEED;
-	static const double yaw_range = 0.5;
+	static const double yaw_speed_high = ROBOT_YAW_SPEED_HIGH;
+	static const double yaw_speed_low = ROBOT_YAW_SPEED_LOW;
+	static const double yaw_speed_thresh = ROBOT_YAW_SPEED_THRESHOLD;
+	static const double yaw_range = 0.01;
 	static const double movement_speed = ROBOT_MOVEMENT_SPEED;
 	static const double robot_min_range = ROBOT_MIN_RANGE;	
 	coordinate position();
-	
+	coordinate last_position;
 	//the server client stuff for player.
 		//for information on how these work go to:
 		//http://playerstage.sourceforge.net/doc/Player-cvs/player

@@ -26,15 +26,17 @@ return coordinate(x, y, 0, theta);
 };
 //explore in a straight path
 bool Robot::explore(){
+cout << "Exploring!" << endl;
 	if(obstacle_present()) return false;
-	while(!obstacle_present())
+	while(!obstacle_present()){
 		move(1);
-		
+	}
 return true;
 };
 
 bool Robot::go_to(coordinate dest){
 bool retVal;
+	cout << "Going to "; dest.print();
 	if(position() == dest) return true;
 	//have the robot turn toward the destination
 	retVal = turn_toward(dest);
@@ -57,11 +59,11 @@ return retVal;
 };
 
 bool Robot::turn_toward(coordinate dest){
-	std::cout << "turning" << endl;
+	std::cout << "\t::Turning::" << endl;
 	//get the new angle
 	coordinate posi = position();
 	double angle = coordinate::angle_towards(posi, dest);
-	cout << "angle" << angle << endl;
+	cout << "\tturning to angle " << angle << "rad" << endl;
 	double ang_dist;				
 	double speed;
 
@@ -81,10 +83,10 @@ bool Robot::turn_toward(coordinate dest){
 			step_back();
 		};
 		
-		//set the speed proportional to the angle distance 
+		//set the speed to low or high depending on the threshold
 			//making sure to turn in the right direction.
-			speed = yaw_speed*ang_dist;
-			if(speed < 0.1) speed = 0.1;
+			if(ang_dist < ROBOT_YAW_SPEED_THRESHOLD) speed = yaw_speed_low;
+			else{ speed = yaw_speed_high; }
 			if((angle - pos->GetYaw()) < 0) speed *= -1;
 		pos->SetSpeed(0, speed);
 	}
@@ -96,7 +98,7 @@ return false;
 };
 
 bool Robot::move(double distance){
-cout << "moving" << endl;
+cout << "\t::Moving::" << endl;
 //if there is nowhere to move return true;
 	if(distance == 0) return true;
 	//to keep track of the distance covered
@@ -104,9 +106,15 @@ cout << "moving" << endl;
 	
 	pos->SetSpeed(movement_speed, 0);
 	
+	double dist;
+	
 	while(true){
 		//stop and smell the roses
 		client->Read();
+		//get the distance
+		dist = coordinate::distance(position(), pos0);
+		//save the current position
+		//navi->save_position(position(), last_position);
 		//report location to map
 		map->mark_explored(position());
 		//if there is an obstacle stop;
@@ -115,10 +123,12 @@ cout << "moving" << endl;
 			step_back();
 			return false;
 		}
+
 		//if the distance has been covered stop
-		if( coordinate::distance(position(), pos0) >= distance){
+		if( dist >= distance){
 		 stop(); 
-		 return true;}
+		 return true;
+		 }
 	};
 
 	//if somehow execution reaches here stop the robot. 
@@ -131,7 +141,7 @@ void Robot::stop(){ pos->SetSpeed(0,0); };
 
 void Robot::step_back(){ 			
 	pos->SetSpeed(-movement_speed, 0);
-			sleep(2);
+			sleep(1);
 			stop();
 };
 bool Robot::obstacle_present(){
@@ -175,31 +185,73 @@ try
 	bool success = true; 
 	coordinate last_waypoint = position();
 	int sameCount = 0;
+	
+	last_position = position();
 	//while there is still places to go in map
 	while(!map->map_explored()){
+		//stop the robot just in case
+		stop();
 		client->Read();
-		std::cout << "position:";
+		
+		//print the current position
+		std::cout << "Position: ";
 		position().print();
-		//print the status of that venture
-		cout << endl << success << endl;
+
 		//get the next waypoint
 		coordinate waypoint = navi->next_waypoint(position(), success);
 
 		//print waypoint
-		cout << "waypoint:"; waypoint.print();
+		cout << "Waypoint: "; waypoint.print();
+		
 		if(last_waypoint == waypoint) sameCount++;
 		else{ last_waypoint = waypoint; sameCount = 0;}
-		//go to said waypoint
+		
+		//split the waypoint in x and y
+		coordinate cur_pos = position();
+		coordinate x_waypoint(waypoint.x, cur_pos.y, 0, 0);
+		coordinate y_waypoint(cur_pos.y, waypoint.x, 0, 0);
+		
+		//print the x and y waypoint 
+		cout << "XWaypoint:"; x_waypoint.print();
+		cout << "YWaypoint:"; y_waypoint.print();
+		
+		cout << "Navi's goal:"; navi->get_goal().print();
+		//set the last position
+		last_position = position();
+		
+		cout << "***************" << endl;
+		
+		//start by going to the x waypoint
+			//if that doesn't work go back and try the y
+		if(!go_to(x_waypoint)){
+			navi->save_position(position(), last_position); 
+			go_to(last_position);
+			//if going to the y waypoint doesn't work then go back.
+			if(!go_to(y_waypoint)){
+				navi->save_position(position(), last_position);
+				go_to(last_position);
+			}
+		}
+		
+		navi->save_position(position(), last_position);
 		success = go_to(waypoint);
+		
+		if(success) cout << endl << "Reached waypoint!" << endl;
 		
 		//every once in a while explore
 		double r = rand_between(0, 10, 1);
-		if(r > 8) success = !explore();
+		if(r > 6){ 
+			success = !explore(); 	
+		}
 		
-		//print the status of that venture
-		cout << endl << success << endl;
+		cout << endl << "+++++TREE++++++" << endl;
+		navi->print_tree();
+		cout << endl << "+++++++++++++++" << endl;
+		
 		//print the status of the map
-		//map->print_section_map();
+		cout << endl <<"******MAP********" << endl;
+		map->print_section_map();
+		cout << "*****************" << endl;
 		
 	};
 	

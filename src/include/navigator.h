@@ -2,6 +2,7 @@
 #define ROBO_NAVIGATOR_H
 #include "map.h"
 #include "coordinate.h"
+#include "config.h"
 	#include <vector>
 	#include "stack.h"
 
@@ -12,8 +13,12 @@ public:
 	void print_tree();
 	//get the waypoint at the top of the queue given the current location
 	coordinate next_waypoint(coordinate location, bool success);
-
-//private:
+	
+	//get the goal
+	coordinate get_goal();
+	//saves the current position
+	bool save_position(coordinate location, coordinate last_location);
+private:
 //a node
 	class node{
 		public:
@@ -47,6 +52,10 @@ public:
 	stack waypoints;
 	coordinate robot_location;
 	coordinate last_location;
+	coordinate goal;
+	int failed_attempts;
+	static const int MAX_FAILED_ATTEMPTS = NAVIGATOR_MAX_FAILED_ATTEMPTS;
+	
 	Map * _map;
 	
 	//looks at the map and returns the coordinate of the next goal.

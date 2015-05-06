@@ -31,7 +31,7 @@ void stack::clear(){
 };
 
 void stack::print(){
-	for(int i = 0; i < cont.size(); i++)
+	for(unsigned i = 0; i < cont.size(); i++)
 		cont[i].print();		
 };
 

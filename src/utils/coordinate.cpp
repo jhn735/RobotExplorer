@@ -37,10 +37,10 @@ double coordinate::angle_towards(coordinate src, coordinate dest){
 	double a = atan(diff.y/diff.x);
 	
 	//factor in the quadrant
-	if(diff.x > 0 && diff.y > 0) return a;
-	if(diff.x < 0 && diff.y > 0) return PI+a;
-	if(diff.x < 0 && diff.y < 0) return a-PI;
-	if(diff.x > 0 && diff.y < 0) return a;
+	if( (diff.x > 0) && (diff.y > 0) ) return a;
+	if( (diff.x < 0) && (diff.y > 0) ) return PI+a;
+	if( (diff.x < 0) && (diff.y < 0) ) return a-PI;
+	if( (diff.x > 0) && (diff.y < 0) ) return a;
 };
 
 bool coordinate::near(coordinate a, coordinate b){

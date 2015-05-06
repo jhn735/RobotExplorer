@@ -37,10 +37,10 @@ return (double)randNum;
 unsigned char ** alloc_2D_array(unsigned char * arr, unsigned w, unsigned h){
 	unsigned char ** retVal = new unsigned char*[h];
 	int arr_index = 0;
-	for(int i = 0; i < h; i++){
+	for(unsigned i = 0; i < h; i++){
 		//create a new row
 		retVal[i] = new unsigned char[w];
-		for(int j = 0; j < w; j++){
+		for(unsigned j = 0; j < w; j++){
 /*			std::cout << "i:" << i
 					  << " j:" << j
 					  << " arr_index:" << arr_index
@@ -74,12 +74,12 @@ void disp(unsigned char * a, unsigned w, unsigned h){
 };	
 
 void dealloc_2D_array(unsigned char ** arr, unsigned w, unsigned h){
-	for(int i = 0; i < h; i++){
+	for(unsigned i = 0; i < h; i++){
 		delete arr[i];
 	}
 	delete arr;
 };
 
 void wait_iterations(int num_iterations){
-	for(int i = num_iterations; i>0; i--){}
+	for(unsigned i = num_iterations; i>0; i--){}
 };
