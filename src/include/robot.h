@@ -19,15 +19,23 @@ class Robot{
 	static const int LEFT_SIDE = 1;
 	static const int RIGHT_SIDE = 2;
 	
+	static const double UP = PI/2;
+	static const double DOWN = -PI/2;
+	static const double RIGHT = 0;
+	static const double LEFT = PI;
+	
+	static const double exploring_distance = ROBOT_EXPLORE_DIST;
+	
 	static const double yaw_speed_high = ROBOT_YAW_SPEED_HIGH;
 	static const double yaw_speed_mid = ROBOT_YAW_SPEED_MID;
 	static const double yaw_speed_low = ROBOT_YAW_SPEED_LOW;
 	static const double yaw_speed_thresh = ROBOT_YAW_SPEED_THRESHOLD;
-	static const double yaw_range = 0.1;
+	static const double yaw_range = ROBOT_YAW_RANGE;
 	static const double movement_speed = ROBOT_MOVEMENT_SPEED;
 	static const double robot_min_range = ROBOT_MIN_RANGE;	
 	coordinate position();
 	coordinate last_position;
+	coordinate waypoint;
 	//the server client stuff for player.
 		//for information on how these work go to:
 		//http://playerstage.sourceforge.net/doc/Player-cvs/player
@@ -43,12 +51,12 @@ class Robot{
 		*Returns true if operation was successful
 	*/
 	//explore goes on until an obstacle is found
-	bool explore();
+	bool explore(double direction);
 	//has robot goto to the specified point
 	bool go_to(coordinate dest);
 	//directions Forward and backward should not work here. 
 	bool turn_toward(coordinate dest);
-	bool turn(double radians);
+	bool turn_to(double radians);
 	//move forward a certain distance. to move backward set distance to negative
 	bool move(double distance);
 	//stops the robot	
@@ -58,11 +66,18 @@ class Robot{
 	//checks to see if there is an obstacle
 	bool obstacle_present();
 	bool obstacle_present(int side);
-	bool obstacle_present(int range1, int range2);
+	bool obstacle_present(int side, double range);
+	bool obstacle_present(int range1, int range2, double range);
+	double max_range(int side);
+	
+	
+	bool direction_explored(double direction);
+	
 public:
 	Robot(Map * m);
 	//starts up the robot client, connects with the server etc.	
 	void run();
+	void print_status();
 
 //dimensions of the robot in meters
 	static double length(){ return ROBOT_LENGTH_METERS;};

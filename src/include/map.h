@@ -63,6 +63,9 @@ private://map's private stash
 	static double _grid_shift_length;
 	static double _grid_shift_width;
 	
+	//this checks to see if any section need not be explored
+	void update_map();
+	
 		//the map should consist of sections
 	Section ** _section_map;
 		unsigned _section_map_w;

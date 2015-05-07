@@ -165,7 +165,7 @@ coordinate Map::generate_random_coord(){
 	if(map_explored()) return coordinate(0,0,0,0);
 
 	//generate a random number between 1 and 100 
-	double rand = rand_between(1, 1000, random_seed);
+	double rand = rand_between(1, 20, random_seed);
 		random_seed++;
 	//if the section is explorable() and isn't explored
 		//if rand is <= 0 return the center coordinate
@@ -173,9 +173,17 @@ coordinate Map::generate_random_coord(){
 	  for(unsigned i = 0; i < _section_map_l; i++)
 		for(unsigned j = 0; j < _section_map_l; j++){
 			Section s = _section_map[i][j];
-			if(s.explorable() && !s.explored())
-				if(rand > 0) rand--;
-				else return s._center_meter;	
+			if(s.explorable() && !s.explored()){
+			//for each section adjacent to s
+				//check to see if it's on the frontier
+				for(unsigned k = i-1; k < i+1; k++)
+					for(unsigned l = j-1; l < j+1; l++){ 
+						Section m = _section_map[k][l];
+						if(m.explored() && m.explorable())
+							if(rand > 0) rand--;
+							else return s._center_meter;	
+					}	
+			}
 		}//end for(unsigned j...	
 	};//end while
 };
@@ -240,19 +248,19 @@ void Map::mark_explored(coordinate coord){
 	if(s == NULL) return;
 
 	double low_x = s->_center_meter.x - Section::width_meters();
-	
 	double low_y = s->_center_meter.y - Section::length_meters();
 
 	double x;
 	double y;
 
-	for(unsigned i = 0; i < 3; i++)
-		for(unsigned j = 0; j < 3; j++){
+	for(unsigned i = 0; i < 2; i++)
+		for(unsigned j = 0; j < 2; j++){
 				x = low_x+i*Section::width_meters();
 				y =  low_y+j*Section::length_meters();
 			coord = coordinate(x,y, 0,0);
 			s = get_containing_section(coord);
 			if(s == NULL) continue;
+			
 			s->set_explored();
 		}
 };

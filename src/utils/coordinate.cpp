@@ -2,7 +2,7 @@
 #include "config.h"
 #include <cmath> 
 #include <iostream>
-#define PI          3.1415 /* pi */
+
 /*
 	Having something that stores coordinates together is much convenient wow.
 */

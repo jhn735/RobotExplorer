@@ -9,6 +9,7 @@ class stack{
 public:
 	stack();
 	bool empty();
+	bool contains(coordinate c);
 	int size();
 	coordinate top();
 	void push(coordinate c);

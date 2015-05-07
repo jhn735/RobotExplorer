@@ -38,29 +38,13 @@ Navigator::Navigator(Map * map, coordinate root){
 	robot_location = root;
 	last_location = root;	
 	failed_attempts = 0;
-	//construct the root node and add it to the tree
-	add_node(root, NULL);
-	//initialize the waypoint stack with a new goal
-	coordinate goal = next_goal();
-	plan_path_to_goal(goal);
+	waypoints.push(root);
+
 };
 
 bool Navigator::save_position(coordinate location, coordinate last_location){
-	
-	//find the parent
-	node * parent = closest_in_tree(last_location);
-	// if the parent isn't found then return false
-	if(parent == NULL);
-	//cout << "\tNavi:'saving a spot!'" << endl;
-	//otherwise add the node
-	add_node(location, parent);
-	//set the var 'last location' to be last location
-	this->last_location = last_location;
-	//update the robot's current location
-	this->robot_location = location;
-	//rethink your plan
-	waypoints.clear();
-	plan_path_to_goal(this->goal);
+if(waypoints.contains(location)) return false;
+	waypoints.push(location);	
 return true;
 };
 
@@ -68,55 +52,10 @@ return true;
 	//this function assumes that the robot has either reached it waypoint
 	//or completely failed to reach it. No in betweens.
 coordinate Navigator::next_waypoint(coordinate current_location, bool success){
-	
-	//set the robot_location to be location.
-	last_location = robot_location;
-	robot_location = current_location;
-	
-	//if the robot said it didn't make it, check to see if it came close
-	success = success 
-				|| coordinate::near(robot_location, goal);
-				
-	//if the last attempt to reach a waypoint failed. 
-		//Add to the fail attempts counter			
-	if(!success){ 
-		failed_attempts++;
-		cout << "Navi:not successful" << endl;
-	}
-	
-	//if the goal has been reached 
-		//generate a new goal and clear out all the waypoints
-	if(coordinate::near(robot_location, goal)){ 
-			this->goal = next_goal(); 
-			waypoints.clear();
-	}
-	
-	//if there are too many failed attempts then create a goal 
-	//and go to the goal directly
-	if(failed_attempts > Navigator::MAX_FAILED_ATTEMPTS ){
-	 cout << "failed too many times!" << endl;
-		this->goal = next_goal();
-		failed_attempts = 0;
-		waypoints.clear();
-	return goal; 
-	}
-
-	if(!waypoints.empty()){
-		//if the waypoint has been reached remove from stack 
-			//otherwise the robot was blocked
-		if( coordinate::near(robot_location,waypoints.top()) ) waypoints.pop();
-	}
-	//if the queue is empty
-		//get the next goal
-		//plan the path to that goal
-	if(waypoints.empty()){
-		plan_path_to_goal(goal);
-		if( coordinate::near(robot_location,waypoints.top()) ) waypoints.pop();
-	}
-
-
-//return the next element in the stack
-return waypoints.top();
+	if(waypoints.empty()) return next_goal();
+	coordinate waypoint = waypoints.top();
+	waypoints.pop();
+return waypoint;
 };
 
 //get's the next goal checks

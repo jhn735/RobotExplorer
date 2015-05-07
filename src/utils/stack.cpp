@@ -10,6 +10,12 @@ bool stack::empty(){
 	return cont.empty();
 };
 
+bool stack::contains(coordinate c){
+	for(unsigned i = 0; i < cont.size(); i++)
+		if(c == cont[i]) return true;
+return false;
+};
+
 int stack::size(){
 	return cont.size();
 };

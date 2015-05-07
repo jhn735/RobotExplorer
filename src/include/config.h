@@ -3,13 +3,16 @@
 */
 #ifndef ROBO_CONFIG_H
 #define ROBO_CONFIG_H
+
+	#define PI          3.1415 /* pi */
 	//robot's size
 	#define ROBOT_LENGTH_METERS 0.44
 	#define ROBOT_WIDTH_METERS 0.38
 	#define ROBOT_HEIGHT_METERS 0.22
 	
 	#define ROBOT_MIN_RANGE 0.75
-	#define ROBOT_COORD_RANGE 4
+	#define ROBOT_COORD_RANGE 3
+	#define ROBOT_EXPLORE_DIST 4
 
 	//robots starting position in meters3 and degrees
 		//respectively
@@ -20,9 +23,10 @@
 
 	//the default speed of movement for robot
 	#define ROBOT_YAW_SPEED_HIGH 1
-	#define ROBOT_YAW_SPEED_MID 0.1
-	#define ROBOT_YAW_SPEED_LOW 0.05
+	#define ROBOT_YAW_SPEED_MID 0.5
+	#define ROBOT_YAW_SPEED_LOW 0.1
 	#define ROBOT_YAW_SPEED_THRESHOLD 0.2
+	#define ROBOT_YAW_RANGE 0.1
 	
 	#define ROBOT_MOVEMENT_SPEED 1
 
