@@ -103,7 +103,7 @@ bool Robot::direction_explored(double direction){
 			pos1.x -= range;
 		}
 		
-		if(range < exploring_distance) return true;
+		if(range < exploring_distance-1) return true;
 		cout<< "proposed coordinate: "; pos1.print();
 		explored = map->coord_explored(pos1); 
 		cout << "explored? " << explored << endl;
@@ -301,8 +301,8 @@ int range1 = 0; int range2 = 0;
 	int count = laser->GetCount();
 	switch(side){
 		case FRONT_SIDE:{
-			range1 = count/2 - count/15;
-			range2 = count/2 + count/15;
+			range1 = count/2 - count/10;
+			range2 = count/2 + count/10;
 
 		};	
 		case LEFT_SIDE:{

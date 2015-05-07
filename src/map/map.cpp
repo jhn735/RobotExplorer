@@ -253,8 +253,8 @@ void Map::mark_explored(coordinate coord){
 	double x;
 	double y;
 
-	for(unsigned i = 0; i < 2; i++)
-		for(unsigned j = 0; j < 2; j++){
+	for(unsigned i = 0; i < 3; i++)
+		for(unsigned j = 0; j < 3; j++){
 				x = low_x+i*Section::width_meters();
 				y =  low_y+j*Section::length_meters();
 			coord = coordinate(x,y, 0,0);
